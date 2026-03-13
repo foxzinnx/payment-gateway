@@ -1,8 +1,8 @@
-import { Customer } from "../../domain/entities/customer.entity.js";
-import { CPFAlreadyInUseError } from "../../domain/errors/cpf-already-in-use.error.js";
-import { EmailAlreadyInUseError } from "../../domain/errors/email-already-in-use.error.js";
-import type { ICustomerRepository } from "../../domain/repositories/customer.repository.js";
-import type { CreateCustomerInputDTO, CustomerOutputDTO } from "../dtos/customer.dto.js";
+import { Customer } from "@/domain/entities/customer.entity.js";
+import { CPFAlreadyInUseError } from "@/domain/errors/cpf-already-in-use.error.js";
+import { EmailAlreadyInUseError } from "@/domain/errors/email-already-in-use.error.js";
+import type { ICustomerRepository } from "@/domain/repositories/customer.repository.js";
+import type { CreateCustomerInputDTO, CustomerOutputDTO } from "@/application/dtos/customer.dto.js";
 
 export class CreateCustomerUseCase {
     constructor(private readonly customerRepository: ICustomerRepository){}

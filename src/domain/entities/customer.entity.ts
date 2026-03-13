@@ -23,7 +23,7 @@ export class Customer extends Entity<CustomerProps>{
             name: string;
             email: string;
             cpf: string;
-            phone?: string;
+            phone?: string | undefined;
         },
         id?: UniqueEntityId
     ): Customer {
