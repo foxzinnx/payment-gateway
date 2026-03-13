@@ -1,4 +1,4 @@
-export interface CreateCustomerDTO {
+export interface CreateCustomerInputDTO {
     name: string;
     email: string;
     cpf: string;
