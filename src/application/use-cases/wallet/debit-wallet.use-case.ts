@@ -1,0 +1,41 @@
+import type { DebitWalletInputDTO, WalletOutputDTO } from "@/application/dtos/wallet.dto.js";
+import type { Wallet } from "@/domain/entities/wallet.entity.js";
+import { NotFoundError } from "@/domain/errors/not-found.error.js";
+import type { IWalletRepository } from "@/domain/repositories/wallet.repository.js";
+import { Money } from "@/domain/value-objects/money.vo.js";
+import { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
+
+export class DebitWalletUseCase{
+    constructor(private readonly walletRepository: IWalletRepository){}
+
+    async execute(input: DebitWalletInputDTO): Promise<WalletOutputDTO>{
+        const wallet = await this.walletRepository.findById(
+            new UniqueEntityId(input.walletId)
+        )
+
+        if(!wallet){
+            throw new NotFoundError('Wallet');
+        }
+
+        const amount = Money.create(input.amountInCents, wallet.currency);
+
+        wallet.debit(amount);
+
+        await this.walletRepository.update(wallet);
+
+        return this.toOutput(wallet);
+    }
+
+    private toOutput(wallet: Wallet): WalletOutputDTO{
+        return {
+            id: wallet.id.value,
+            ownerId: wallet.ownerId.value,
+            ownerType: wallet.ownerType,
+            balanceInCents: wallet.balance.amountInCents,
+            balanceFormatted: wallet.balance.formatted,
+            currency: wallet.currency,
+            createdAt: wallet.createdAt,
+            updatedAt: wallet.updatedAt
+        }
+    }
+}
