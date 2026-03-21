@@ -1,5 +1,5 @@
-import { defineConfig } from 'vitest/config'
-import { resolve } from 'path'
+import { defineConfig } from 'vitest/config';
+import path from 'path';
 
 export default defineConfig({
   test: {
@@ -7,18 +7,19 @@ export default defineConfig({
     environment: 'node',
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'lcov'],
-      include: ['src/domain/**', 'src/application/**'],
-      exclude: ['src/tests/**'],
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/',
+        '__tests__/',
+        '**/*.d.ts',
+        '**/*.config.*',
+        '**/dist/**',
+      ],
     },
   },
   resolve: {
     alias: {
-      '@domain': resolve(__dirname, 'src/domain'),
-      '@application': resolve(__dirname, 'src/application'),
-      '@infrastructure': resolve(__dirname, 'src/infrastructure'),
-      '@presentation': resolve(__dirname, 'src/presentation'),
-      '@shared': resolve(__dirname, 'src/shared'),
+      '@': path.resolve(__dirname, './src'),
     },
   },
-})
+});
