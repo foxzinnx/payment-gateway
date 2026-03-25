@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+    provider = "prisma-client"
+    output   = "../generated/prisma"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Customer {
+    id        String   @id @default(uuid())
+    name      String
+    email     String   @unique
+    cpf       String   @unique
+    phone     String?
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    @@map("customers")
+}
+
+model Merchant {
+    id        String         @id @default(uuid())
+    name      String
+    tradeName String         @map("trade_name")
+    email     String         @unique
+    cnpj      String         @unique
+    status    MerchantStatus @default(ACTIVE)
+    createdAt DateTime       @default(now()) @map("created_at")
+    updatedAt DateTime       @updatedAt @map("updated_at")
+
+    @@map("merchants")
+}
+
+model Wallet {
+    id        String          @id @default(uuid())
+    ownerId   String          @unique @map("owner_id")
+    ownerType WalletOwnerType @map("owner_type")
+    balance   Int             @default(0)
+    currency  String          @default("BRL")
+    createdAt DateTime        @default(now()) @map("created_at")
+    updatedAt DateTime        @updatedAt @map("updated_at")
+
+    @@map("wallets")
+}
+
+enum MerchantStatus {
+    ACTIVE
+    INACTIVE
+    SUSPENDED
+}
+
+enum WalletOwnerType {
+    CUSTOMER
+    MERCHANT
+}
