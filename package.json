@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +25,7 @@
   "devDependencies": {
     "@types/node": "^25.3.3",
     "@types/uuid": "^10.0.0",
+    "@vitest/coverage-v8": "^4.0.18",
     "prisma": "^7.4.2",
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",

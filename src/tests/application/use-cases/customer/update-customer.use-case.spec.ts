@@ -61,5 +61,5 @@ describe('UpdateCustomerUseCase', () => {
         await expect(
             sut.execute('00000000-0000-0000-0000-000000000000', { name: 'New Name' })
         ).rejects.toThrowError(NotFoundError);
-    })
+    });
 })
