@@ -3,7 +3,7 @@ import { type Currency, Money } from "../value-objects/money.vo.js";
 import type { UniqueEntityId } from "../value-objects/unique-entity-id.vo.js";
 import { Entity } from "./base/entity.base.js";
 
-export type WalletOwnerType = 'MERCHANT' | 'COSTUMER'
+export type WalletOwnerType = 'MERCHANT' | 'CUSTOMER'
 
 interface WalletProps {
     ownerId: UniqueEntityId;

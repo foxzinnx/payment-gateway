@@ -66,7 +66,7 @@ export class Customer extends Entity<CustomerProps>{
         this.props.updatedAt = new Date();
     }
 
-    updatePhone(phone: string): void {
+    updatePhone(phone: string | null): void {
         this.props.phone = phone?.trim() ?? null;
         this.props.updatedAt = new Date();
     }
