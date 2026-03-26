@@ -27,5 +27,5 @@ export const walletIdSchema = z.object({
 });
 
 export const ownerIdSchema = z.object({
-    id: z.uuid('Invalid owner ID')
+    ownerId: z.uuid('Invalid owner ID')
 })
