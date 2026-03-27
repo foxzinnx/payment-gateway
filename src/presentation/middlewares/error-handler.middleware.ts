@@ -2,6 +2,7 @@ import { DomainError } from "@/domain/errors/domain.error.js";
 import { InsufficientFundsError } from "@/domain/errors/insufficient-funds.error.js";
 import { InvalidArgumentError } from "@/domain/errors/invalid-argument.error.js";
 import { NotFoundError } from "@/domain/errors/not-found.error.js";
+import { UnauthorizedError } from "@/domain/errors/unauthorized.error.js";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { ZodError } from "zod";
 
@@ -22,6 +23,15 @@ export function errorHandler(error: unknown, request: FastifyRequest, reply: Fas
 
     if(error instanceof NotFoundError){
         reply.status(404).send({
+            status: 'error',
+            code: error.code,
+            message: error.message
+        });
+        return;
+    }
+
+    if(error instanceof UnauthorizedError){
+        reply.status(401).send({
             status: 'error',
             code: error.code,
             message: error.message
