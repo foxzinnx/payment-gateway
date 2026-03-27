@@ -8,7 +8,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate"
+    "prisma:migrate": "prisma migrate dev",
+    "start:dev": "tsx --watch src/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -17,18 +18,19 @@
   "dependencies": {
     "@fastify/cors": "^11.2.0",
     "@fastify/helmet": "^13.0.2",
-    "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^6.19.2",
+    "bcryptjs": "^3.0.3",
     "dotenv": "^17.3.1",
     "fastify": "^5.8.1",
     "fastify-plugin": "^5.1.0",
-    "pg": "^8.20.0",
+    "jsonwebtoken": "^9.0.3",
     "uuid": "^13.0.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.3.3",
-    "@types/pg": "^8.20.0",
     "@types/uuid": "^10.0.0",
     "@vitest/coverage-v8": "^4.0.18",
     "prisma": "^6.19.2",

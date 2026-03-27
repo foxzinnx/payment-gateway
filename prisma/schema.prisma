@@ -15,26 +15,30 @@ datasource db {
 }
 
 model Customer {
-    id        String   @id @default(uuid())
-    name      String
-    email     String   @unique
-    cpf       String   @unique
-    phone     String?
-    createdAt DateTime @default(now()) @map("created_at")
-    updatedAt DateTime @updatedAt @map("updated_at")
+    id           String   @id @default(uuid())
+    name         String
+    email        String   @unique
+    cpf          String   @unique
+    password     String
+    refreshToken String?  @map("refresh_token")
+    phone        String?
+    createdAt    DateTime @default(now()) @map("created_at")
+    updatedAt    DateTime @updatedAt @map("updated_at")
 
     @@map("customers")
 }
 
 model Merchant {
-    id        String         @id @default(uuid())
-    name      String
-    tradeName String         @map("trade_name")
-    email     String         @unique
-    cnpj      String         @unique
-    status    MerchantStatus @default(ACTIVE)
-    createdAt DateTime       @default(now()) @map("created_at")
-    updatedAt DateTime       @updatedAt @map("updated_at")
+    id           String         @id @default(uuid())
+    name         String
+    tradeName    String         @map("trade_name")
+    email        String         @unique
+    cnpj         String         @unique
+    password     String
+    refreshToken String         @map("refresh_token")
+    status       MerchantStatus @default(ACTIVE)
+    createdAt    DateTime       @default(now()) @map("created_at")
+    updatedAt    DateTime       @updatedAt @map("updated_at")
 
     @@map("merchants")
 }
@@ -49,6 +53,27 @@ model Wallet {
     updatedAt DateTime        @updatedAt @map("updated_at")
 
     @@map("wallets")
+}
+
+model Transaction {
+    id             String            @id @default(uuid())
+    customerId     String            @map("customer_id")
+    merchantId     String            @map("merchant_id")
+    amountInCents  Int               @map("amount_in_cents")
+    currency       String            @default("BRL")
+    status         TransactionStatus @default(PENDING)
+    description    String?
+    idempotencyKey String?           @unique @map("idempotency_key")
+    createdAt      DateTime          @default(now()) @map("created_at")
+    updatedAt      DateTime          @updatedAt @map("updated_at")
+
+    @@map("transactions")
+}
+
+enum TransactionStatus {
+    PENDING
+    APPROVED
+    FAILED
 }
 
 enum MerchantStatus {
