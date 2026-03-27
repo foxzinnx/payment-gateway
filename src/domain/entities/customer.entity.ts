@@ -1,6 +1,7 @@
 import { InvalidArgumentError } from "../errors/invalid-argument.error.js";
 import { CPF } from "../value-objects/cpf.vo.js";
 import { Email } from "../value-objects/email.vo.js";
+import { Password } from "../value-objects/password.vo.js";
 import type { UniqueEntityId } from "../value-objects/unique-entity-id.vo.js";
 import { Entity } from "./base/entity.base.js";
 
@@ -8,7 +9,9 @@ interface CustomerProps {
     name: string;
     email: Email;
     cpf: CPF;
+    password: Password;
     phone: string | null;
+    refreshToken: string | null;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -18,15 +21,16 @@ export class Customer extends Entity<CustomerProps>{
         super(props, id)
     }
 
-    static create(
+    static async create(
         props: {
             name: string;
             email: string;
             cpf: string;
+            password: string;
             phone?: string | undefined;
         },
         id?: UniqueEntityId
-    ): Customer {
+    ): Promise<Customer> {
         Customer.validateName(props.name);
 
         const now = new Date();
@@ -36,7 +40,9 @@ export class Customer extends Entity<CustomerProps>{
                 name: props.name.trim(),
                 email: Email.create(props.email),
                 cpf: CPF.create(props.cpf),
+                password: await Password.createFromPlain(props.password),
                 phone: props.phone?.trim() ?? null,
+                refreshToken: null,
                 createdAt: now,
                 updatedAt: now
             },
@@ -51,7 +57,9 @@ export class Customer extends Entity<CustomerProps>{
     get name(): string { return this.props.name }
     get email(): Email { return this.props.email }
     get cpf(): CPF { return this.props.cpf }
+    get password(): Password { return this.password }
     get phone(): string | null { return this.props.phone }
+    get refreshToken(): string | null { return this.refreshToken }
     get createdAt(): Date { return this.props.createdAt }
     get updatedAt(): Date { return this.props.updatedAt }
 
@@ -68,6 +76,11 @@ export class Customer extends Entity<CustomerProps>{
 
     updatePhone(phone: string | null): void {
         this.props.phone = phone?.trim() ?? null;
+        this.props.updatedAt = new Date();
+    }
+
+    setRefreshToken(token: string | null): void {
+        this.props.refreshToken = token;
         this.props.updatedAt = new Date();
     }
 

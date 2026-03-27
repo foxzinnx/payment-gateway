@@ -1,6 +1,7 @@
 import { InvalidArgumentError } from "../errors/invalid-argument.error.js";
 import { CNPJ } from "../value-objects/cnpj.vo.js";
 import { Email } from "../value-objects/email.vo.js";
+import { Password } from "../value-objects/password.vo.js";
 import type { UniqueEntityId } from "../value-objects/unique-entity-id.vo.js";
 import { Entity } from "./base/entity.base.js";
 
@@ -10,8 +11,10 @@ interface MerchantProps {
     name: string;
     tradeName: string;
     email: Email;
+    password: Password;
     cnpj: CNPJ;
     status: MerchantStatus;
+    refreshToken: string | null;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -21,15 +24,16 @@ export class Merchant extends Entity<MerchantProps>{
         super(props, id);
     }
 
-    static create(
+    static async create(
         props: {
             name: string;
             tradeName: string;
             email: string;
+            password: string;
             cnpj: string
         },
         id?: UniqueEntityId
-    ): Merchant {
+    ): Promise <Merchant> {
         Merchant.validateName(props.name);
         Merchant.validateName(props.tradeName);
 
@@ -40,8 +44,10 @@ export class Merchant extends Entity<MerchantProps>{
                 name: props.name.trim(),
                 tradeName: props.tradeName.trim(),
                 email: Email.create(props.email),
+                password: await Password.createFromPlain(props.password),
                 cnpj: CNPJ.create(props.cnpj),
                 status: 'ACTIVE',
+                refreshToken: null,
                 createdAt: now,
                 updatedAt: now
             },
@@ -62,11 +68,17 @@ export class Merchant extends Entity<MerchantProps>{
     get email(): Email {
         return this.props.email
     }
+    get password(): Password {
+        return this.password
+    }
     get cnpj(): CNPJ {
         return this.props.cnpj
     }
     get status(): MerchantStatus {
         return this.props.status
+    }
+    get refreshToken(): string | null {
+        return this.refreshToken
     }
     get createdAt(): Date {
         return this.props.createdAt
@@ -105,6 +117,11 @@ export class Merchant extends Entity<MerchantProps>{
 
     updateEmail(email: string): void {
         this.props.email = Email.create(email);
+        this.props.updatedAt = new Date();
+    }
+
+    setRefreshToken(token: string | null): void {
+        this.props.refreshToken = token;
         this.props.updatedAt = new Date();
     }
 
