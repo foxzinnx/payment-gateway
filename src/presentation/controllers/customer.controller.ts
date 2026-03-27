@@ -3,14 +3,6 @@ import { createCustomerSchema, customerIdSchema, updateCustomerSchema } from "..
 import { container } from "@/infra/container/index.js";
 
 export class CustomerController {
-    async create(request: FastifyRequest, reply: FastifyReply): Promise<void>{
-        const body = createCustomerSchema.parse(request.body);
-
-        const output = await container.createCustomer.execute(body);
-
-        reply.status(201).send({ status: 'success', data: output })
-    }
-
     async getById(request: FastifyRequest, reply: FastifyReply): Promise<void>{
         const { id } = customerIdSchema.parse(request.params);
 

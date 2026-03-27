@@ -3,14 +3,6 @@ import { createMerchantSchema, merchantIdSchema, updateMerchantSchema } from "..
 import { container } from "@/infra/container/index.js";
 
 export class MerchantController {
-    async create(request: FastifyRequest, reply: FastifyReply): Promise<void>{
-        const body = createMerchantSchema.parse(request.body);
-
-        const output = await container.createMerchant.execute(body);
-
-        reply.status(201).send({ status: 'success', data: output });
-    }
-
     async getById(request: FastifyRequest, reply: FastifyReply): Promise<void>{
         const { id } = merchantIdSchema.parse(request.params);
 
