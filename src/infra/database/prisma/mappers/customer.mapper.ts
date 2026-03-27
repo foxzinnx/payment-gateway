@@ -1,6 +1,7 @@
 import { Customer } from "@/domain/entities/customer.entity.js";
 import { CPF } from "@/domain/value-objects/cpf.vo.js";
 import { Email } from "@/domain/value-objects/email.vo.js";
+import { Password } from "@/domain/value-objects/password.vo.js";
 import { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
 import type { Customer as PrismaCustomer } from "generated/prisma/client.js";
 
@@ -10,8 +11,10 @@ export class CustomerMapper {
             {
                 name: raw.name,
                 email: Email.create(raw.email),
+                password: Password.createFromHash(raw.password),
                 cpf: CPF.create(raw.cpf),
                 phone: raw.phone,
+                refreshToken: raw.refreshToken,
                 createdAt: raw.createdAt,
                 updatedAt: raw.updatedAt
             },
@@ -24,8 +27,10 @@ export class CustomerMapper {
             id: customer.id.value,
             name: customer.name,
             email: customer.email.value,
+            password: customer.password.value,
             cpf: customer.cpf.value,
             phone: customer.phone,
+            refreshToken: customer.refreshToken,
             createdAt: customer.createdAt,
             updatedAt: customer.updatedAt,
         }
