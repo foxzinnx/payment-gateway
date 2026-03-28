@@ -64,6 +64,7 @@ model Transaction {
     status         TransactionStatus @default(PENDING)
     description    String?
     idempotencyKey String?           @unique @map("idempotency_key")
+    denialReason   String?           @map("denial_reason")
     createdAt      DateTime          @default(now()) @map("created_at")
     updatedAt      DateTime          @updatedAt @map("updated_at")
 

@@ -29,9 +29,9 @@ export class Transaction extends Entity<TransactionProps>{
             customerId: UniqueEntityId
             merchantId: UniqueEntityId
             amountInCents: number
-            currency?: Currency
-            description?: string
-            idempotencyKey?: string
+            currency?: Currency | undefined
+            description?: string | undefined
+            idempotencyKey?: string | undefined
         },
         id?: UniqueEntityId
     ): Transaction {
