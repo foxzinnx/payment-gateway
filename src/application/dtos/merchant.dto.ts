@@ -8,8 +8,8 @@ export interface CreateMerchantInputDTO {
 }
 
 export interface UpdateMerchantInputDTO {
-    tradeName?: string;
-    email?: string;
+    tradeName?: string | undefined;
+    email?: string | undefined;
 }
 
 export interface MerchantOutputDTO {

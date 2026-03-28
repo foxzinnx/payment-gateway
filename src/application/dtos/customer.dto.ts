@@ -2,13 +2,13 @@ export interface CreateCustomerInputDTO {
     name: string;
     email: string;
     cpf: string;
-    phone?: string;
+    phone?: string | undefined;
 }
 
 export interface UpdateCustomerInputDTO {
-    name?: string;
-    email?: string;
-    phone?: string | null;
+    name?: string | undefined;
+    email?: string | undefined;
+    phone?: string | null | undefined;
 }
 
 export interface CustomerOutputDTO {

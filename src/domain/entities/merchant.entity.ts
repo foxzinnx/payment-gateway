@@ -60,69 +60,69 @@ export class Merchant extends Entity<MerchantProps>{
     }
 
     get name(): string {
-        return this.props.name
+        return this._props.name
     }
     get tradeName(): string {
-        return this.props.tradeName
+        return this._props.tradeName
     }
     get email(): Email {
-        return this.props.email
+        return this._props.email
     }
     get password(): Password {
-        return this.password
+        return this._props.password
     }
     get cnpj(): CNPJ {
-        return this.props.cnpj
+        return this._props.cnpj
     }
     get status(): MerchantStatus {
-        return this.props.status
+        return this._props.status
     }
     get refreshToken(): string | null {
-        return this.refreshToken
+        return this._props.refreshToken
     }
     get createdAt(): Date {
-        return this.props.createdAt
+        return this._props.createdAt
     }
     get updatedAt(): Date {
-        return this.props.updatedAt
+        return this._props.updatedAt
     }
     get isActive(): boolean {
-        return this.props.status === 'ACTIVE'
+        return this._props.status === 'ACTIVE'
     }
 
     activate(): void {
-        if(this.props.status === 'ACTIVE') return;
-        this.props.status = 'ACTIVE';
-        this.props.updatedAt = new Date();
+        if(this._props.status === 'ACTIVE') return;
+        this._props.status = 'ACTIVE';
+        this._props.updatedAt = new Date();
     }
 
     suspend(): void {
-        if(this.props.status === 'INACTIVE'){
+        if(this._props.status === 'INACTIVE'){
             throw new InvalidArgumentError('Cannot suspend an inactive merchant');
         }
-        this.props.status = 'SUSPENDED'
-        this.props.updatedAt = new Date();
+        this._props.status = 'SUSPENDED'
+        this._props.updatedAt = new Date();
     }
 
     deactivate(): void {
-        this.props.status = 'INACTIVE';
-        this.props.updatedAt = new Date();
+        this._props.status = 'INACTIVE';
+        this._props.updatedAt = new Date();
     }
 
     updateTradeName(tradeName: string): void {
         Merchant.validateName(tradeName);
-        this.props.tradeName = tradeName.trim();
-        this.props.updatedAt = new Date();
+        this._props.tradeName = tradeName.trim();
+        this._props.updatedAt = new Date();
     }
 
     updateEmail(email: string): void {
-        this.props.email = Email.create(email);
-        this.props.updatedAt = new Date();
+        this._props.email = Email.create(email);
+        this._props.updatedAt = new Date();
     }
 
     setRefreshToken(token: string | null): void {
-        this.props.refreshToken = token;
-        this.props.updatedAt = new Date();
+        this._props.refreshToken = token;
+        this._props.updatedAt = new Date();
     }
 
     private static validateName(name: string): void {

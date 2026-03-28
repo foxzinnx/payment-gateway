@@ -3,7 +3,7 @@ export interface RegisterCustomerInputDTO {
     email: string;
     cpf: string;
     password: string;
-    phone?: string;
+    phone?: string | undefined;
 }
 
 export interface RegisterMerchantInputDTO {

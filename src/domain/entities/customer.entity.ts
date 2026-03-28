@@ -54,34 +54,34 @@ export class Customer extends Entity<CustomerProps>{
         return new Customer(props, id);
     }
 
-    get name(): string { return this.props.name }
-    get email(): Email { return this.props.email }
-    get cpf(): CPF { return this.props.cpf }
-    get password(): Password { return this.password }
-    get phone(): string | null { return this.props.phone }
-    get refreshToken(): string | null { return this.refreshToken }
-    get createdAt(): Date { return this.props.createdAt }
-    get updatedAt(): Date { return this.props.updatedAt }
+    get name(): string { return this._props.name }
+    get email(): Email { return this._props.email }
+    get cpf(): CPF { return this._props.cpf }
+    get password(): Password { return this._props.password }
+    get phone(): string | null { return this._props.phone }
+    get refreshToken(): string | null { return this._props.refreshToken }
+    get createdAt(): Date { return this._props.createdAt }
+    get updatedAt(): Date { return this._props.updatedAt }
 
     updateName(name: string): void {
         Customer.validateName(name);
-        this.props.name = name.trim();
-        this.props.updatedAt = new Date()
+        this._props.name = name.trim();
+        this._props.updatedAt = new Date()
     }
 
     updateEmail(email: string): void {
-        this.props.email = Email.create(email);
-        this.props.updatedAt = new Date();
+        this._props.email = Email.create(email);
+        this._props.updatedAt = new Date();
     }
 
     updatePhone(phone: string | null): void {
-        this.props.phone = phone?.trim() ?? null;
-        this.props.updatedAt = new Date();
+        this._props.phone = phone?.trim() ?? null;
+        this._props.updatedAt = new Date();
     }
 
     setRefreshToken(token: string | null): void {
-        this.props.refreshToken = token;
-        this.props.updatedAt = new Date();
+        this._props.refreshToken = token;
+        this._props.updatedAt = new Date();
     }
 
     private static validateName(name: string): void {

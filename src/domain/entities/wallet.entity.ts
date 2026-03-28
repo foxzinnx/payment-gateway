@@ -41,43 +41,43 @@ export class Wallet extends Entity<WalletProps>{
     }
 
     get ownerId(): UniqueEntityId {
-        return this.props.ownerId;
+        return this._props.ownerId;
     }
 
     get ownerType(): WalletOwnerType {
-        return this.props.ownerType;
+        return this._props.ownerType;
     }
 
     get balance(): Money {
-        return this.props.balance;
+        return this._props.balance;
     }
 
     get currency(): Currency {
-        return this.props.currency;
+        return this._props.currency;
     }
 
     get createdAt(): Date {
-        return this.props.createdAt;
+        return this._props.createdAt;
     }
 
     get updatedAt(): Date {
-        return this.props.updatedAt;
+        return this._props.updatedAt;
     }
 
     credit(amount: Money): void {
-        this.props.balance = this.props.balance.add(amount);
-        this.props.updatedAt = new Date();
+        this._props.balance = this._props.balance.add(amount);
+        this._props.updatedAt = new Date();
     }
 
     debit(amount: Money): void {
-        if(!this.props.balance.isGreaterThanOrEqual(amount)){
+        if(!this._props.balance.isGreaterThanOrEqual(amount)){
             throw new InsufficientFundsError();
         }
-        this.props.balance = this.props.balance.subtract(amount);
-        this.props.updatedAt = new Date();
+        this._props.balance = this._props.balance.subtract(amount);
+        this._props.updatedAt = new Date();
     }
 
     hasEnoughBalance(amount: Money): boolean {
-        return this.props.balance.isGreaterThanOrEqual(amount);
+        return this._props.balance.isGreaterThanOrEqual(amount);
     }
 }

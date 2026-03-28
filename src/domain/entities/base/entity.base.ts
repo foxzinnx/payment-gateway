@@ -2,11 +2,11 @@ import { UniqueEntityId } from "../../value-objects/unique-entity-id.vo.js";
 
 export abstract class Entity<TProps>{
     protected readonly _id: UniqueEntityId
-    protected props: TProps
+    protected _props: TProps
 
     constructor(props: TProps, id?: UniqueEntityId){
         this._id = id ?? new UniqueEntityId();
-        this.props = props;
+        this._props = props;
     }
 
     get id(): UniqueEntityId {
