@@ -4,9 +4,9 @@ import type { Currency } from "@/domain/value-objects/money.vo.js";
 export interface CreateTransactionInputDTO {
     merchantId: string;
     amountInCents: number;
-    currency?: Currency;
-    description?: string;
-    idempotencyKey?: string;
+    currency?: Currency | undefined;
+    description?: string | undefined;
+    idempotencyKey?: string | undefined;
 }
 
 export interface TransactionOutputDTO {

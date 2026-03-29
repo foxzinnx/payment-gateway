@@ -16,10 +16,15 @@ import { RefreshTokenCustomerUseCase } from "@/application/use-cases/auth/refres
 import { RegisterMerchantUseCase } from "@/application/use-cases/auth/register-merchant.use-case.js";
 import { LoginMerchantUseCase } from "@/application/use-cases/auth/login-merchant.use-case.js";
 import { RefreshTokenMerchantUseCase } from "@/application/use-cases/auth/refresh-token-merchant.use-case.js";
+import { PrismaTransactionRepository } from "../database/prisma/repositories/prisma-transaction.repository.js";
+import { authorizationService } from "../services/authorization.service.impl.js";
+import { CreateTransactionUseCase } from "@/application/use-cases/transaction/create-transaction.use-case.js";
+import { GetTransactionById } from "@/application/use-cases/transaction/get-transaction-by-id.use-case.js";
 
 const customerRepository = new PrismaCustomerRepository();
 const merchantRepository = new PrismaMerchantRepository();
 const walletRepository = new PrismaWalletRepository();
+const transactionRepository = new PrismaTransactionRepository()
 
 export const container = {
     registerCustomer: new RegisterCustomerUseCase(customerRepository),
@@ -27,7 +32,6 @@ export const container = {
     refreshTokenCustomer: new RefreshTokenCustomerUseCase(customerRepository),
     getCustomerById: new GetCustomerByIdUseCase(customerRepository),
     updateCustomer: new UpdateCustomerUseCase(customerRepository),
-
 
     registerMerchant: new RegisterMerchantUseCase(merchantRepository),
     loginMerchant: new LoginMerchantUseCase(merchantRepository),
@@ -39,5 +43,14 @@ export const container = {
     createWallet: new CreateWalletUseCase(walletRepository),
     getWalletById: new GetWalletByOwnerIdUseCase(walletRepository),
     creditWallet: new CreditWalletUseCase(walletRepository),
-    debitWallet: new DebitWalletUseCase(walletRepository)
+    debitWallet: new DebitWalletUseCase(walletRepository),
+
+    createTransaction: new CreateTransactionUseCase(
+        transactionRepository,
+        customerRepository,
+        merchantRepository,
+        walletRepository,
+        authorizationService
+    ),
+    getTransactionById: new GetTransactionById(transactionRepository)
 } as const
