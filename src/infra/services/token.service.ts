@@ -1,4 +1,5 @@
 import { UnauthorizedError } from '@/domain/errors/unauthorized.error.js';
+import { randomUUID } from 'crypto';
 import jwt from 'jsonwebtoken';
 
 export type TokenPayload = {
@@ -20,15 +21,19 @@ export class TokenService {
     }
 
     generateAccessToken(payload: TokenPayload): string {
-        return jwt.sign(payload, this.accessSecret, {
-            expiresIn: this.accessExpiresIn,
-        } as jwt.SignOptions)
+        return jwt.sign(
+        { ...payload, jti: randomUUID() }, // ← jti garante unicidade
+        this.accessSecret,
+        { expiresIn: this.accessExpiresIn } as jwt.SignOptions
+        )
     }
 
     generateRefreshToken(payload: TokenPayload): string {
-        return jwt.sign(payload, this.refreshSecret, {
-            expiresIn: this.refreshExpiresIn,
-        } as jwt.SignOptions)
+        return jwt.sign(
+        { ...payload, jti: randomUUID() }, // ← jti garante unicidade
+        this.refreshSecret,
+        { expiresIn: this.refreshExpiresIn } as jwt.SignOptions
+        )
     }
 
     verifyAccessToken(token: string): TokenPayload {

@@ -37,13 +37,13 @@ export class CreateTransactionUseCase {
 
         if(!merchant) throw new NotFoundError('Merchant');
 
-        const customerWallet = await this.walletRepository.findById(
+        const customerWallet = await this.walletRepository.findByOwnerId(
             new UniqueEntityId(customerId)
         );
 
         if(!customerWallet) throw new NotFoundError('Customer wallet');
 
-        const merchantWallet = await this.walletRepository.findById(
+        const merchantWallet = await this.walletRepository.findByOwnerId(
             new UniqueEntityId(input.merchantId)
         );
 

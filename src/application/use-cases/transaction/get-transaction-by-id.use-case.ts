@@ -4,7 +4,7 @@ import { NotFoundError } from "@/domain/errors/not-found.error.js";
 import type { ITransactionRepository } from "@/domain/repositories/transaction.repository.js";
 import { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
 
-export class GetTransactionById {
+export class GetTransactionByIdUseCase {
     constructor(private readonly transactionRepository: ITransactionRepository){}
 
     async execute(id: string): Promise<TransactionOutputDTO>{

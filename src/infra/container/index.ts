@@ -19,7 +19,7 @@ import { RefreshTokenMerchantUseCase } from "@/application/use-cases/auth/refres
 import { PrismaTransactionRepository } from "../database/prisma/repositories/prisma-transaction.repository.js";
 import { authorizationService } from "../services/authorization.service.impl.js";
 import { CreateTransactionUseCase } from "@/application/use-cases/transaction/create-transaction.use-case.js";
-import { GetTransactionById } from "@/application/use-cases/transaction/get-transaction-by-id.use-case.js";
+import { GetTransactionByIdUseCase } from "@/application/use-cases/transaction/get-transaction-by-id.use-case.js";
 
 const customerRepository = new PrismaCustomerRepository();
 const merchantRepository = new PrismaMerchantRepository();
@@ -52,5 +52,5 @@ export const container = {
         walletRepository,
         authorizationService
     ),
-    getTransactionById: new GetTransactionById(transactionRepository)
+    getTransactionById: new GetTransactionByIdUseCase(transactionRepository)
 } as const

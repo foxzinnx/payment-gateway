@@ -91,6 +91,7 @@ export class Transaction extends Entity<TransactionProps>{
             throw new InvalidArgumentError('Only pending transaction can be failed');
         }
         this._props.status = 'FAILED';
+        this._props.denialReason = reason;
         this._props.updatedAt = new Date();
     }
 }
