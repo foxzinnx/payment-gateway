@@ -21,7 +21,7 @@ export class WalletController {
 
     async getByOwnerId(request: FastifyRequest, reply: FastifyReply): Promise<void>{
         const { ownerId } = ownerIdSchema.parse(request.params);
-
+        
         const output = await container.getWalletById.execute(ownerId);
 
         reply.status(200).send({ status: 'success', data: output });

@@ -6,6 +6,12 @@ import { UnauthorizedError } from "@/domain/errors/unauthorized.error.js";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { ZodError } from "zod";
 
+interface FastifyValidationError extends Error {
+    validation: any[];
+    validationContext: string;
+    code: string;
+}
+
 export function errorHandler(error: unknown, request: FastifyRequest, reply: FastifyReply): void{
     if(error instanceof ZodError){
         reply.status(400).send({
@@ -14,6 +20,29 @@ export function errorHandler(error: unknown, request: FastifyRequest, reply: Fas
             message: 'Validation failed',
             issues: error.issues.map((e) => ({
                 field: e.path.join('.'),
+                message: e.message,
+            }))
+        });
+
+        return;
+    }
+
+    const isFastifyValidationError = 
+        error !== null && 
+        typeof error === 'object' && 
+        'code' in error && 
+        (error as Record<string, unknown>).code === 'FST_ERR_VALIDATION';
+
+    if (isFastifyValidationError) {
+        const validationError = error as FastifyValidationError;
+        
+        reply.status(400).send({
+            status: 'error',
+            code: 'VALIDATION_ERROR',
+            message: 'Validation failed',
+            issues: validationError.validation.map((e) => ({
+                // Junta o contexto (ex: "params") com o caminho (ex: "/id") para ficar amigável
+                field: `${validationError.validationContext}${e.instancePath}`, 
                 message: e.message,
             }))
         });

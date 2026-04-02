@@ -18,7 +18,9 @@
   "dependencies": {
     "@fastify/cors": "^11.2.0",
     "@fastify/helmet": "^13.0.2",
+    "@fastify/swagger": "^9.7.0",
     "@prisma/client": "^6.19.2",
+    "@scalar/fastify-api-reference": "^1.49.7",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.3.1",
     "fastify": "^5.8.1",
