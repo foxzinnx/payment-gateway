@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { TransactionController } from "../controllers/transaction.controller.js";
 import { authenticate } from "../middlewares/authenticate.middleware.js";
 import { authorizeCustomer } from "../middlewares/authorize.middleware.js";
+import { container } from "@/infra/container/index.js";
 
 const controller = new TransactionController();
 
@@ -231,4 +232,11 @@ export async function transactionRoutes(app: FastifyInstance): Promise<void> {
         },
         preHandler: authenticate
      }, controller.getById.bind(controller));
+
+    app.get('/transactions/customer/me', { preHandler: [authenticate, authorizeCustomer] }, async (request, reply) => {
+            const customerId = request.user.sub
+            const output = await container.getCustomerTransactions.execute(customerId)
+            reply.status(200).send({ status: 'success', data: output })
+        }
+    )
 }

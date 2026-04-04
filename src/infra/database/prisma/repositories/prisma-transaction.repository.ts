@@ -14,6 +14,16 @@ export class PrismaTransactionRepository implements ITransactionRepository{
 
         return TransactionMapper.toDomain(raw);
     }
+
+    async findAllByCustomerId(customerId: UniqueEntityId): Promise<Transaction[]> {
+        const raws = await prisma.transaction.findMany({
+            where: { customerId: customerId.value },
+            orderBy: { createdAt: 'desc' },
+            take: 20,
+        })
+        return raws.map(TransactionMapper.toDomain)
+    }
+
     async findByIdempotencyKey(key: string): Promise<Transaction | null> {
         const raw = await prisma.transaction.findUnique({
             where: { idempotencyKey: key }

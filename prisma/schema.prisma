@@ -71,6 +71,27 @@ model Transaction {
     @@map("transactions")
 }
 
+model PaymentLink {
+    id            String            @id @default(uuid())
+    code          String            @unique
+    merchantId    String            @map("merchant_id")
+    amountInCents Int               @map("amount_in_cents")
+    description   String?
+    status        PaymentLinkStatus @default(ACTIVE)
+    expiresAt     DateTime          @map("expires_at")
+    usedAt        DateTime?         @map("used_at")
+    createdAt     DateTime          @default(now()) @map("created_at")
+    updatedAt     DateTime          @updatedAt @map("updated_at")
+
+    @@map("payment_links")
+}
+
+enum PaymentLinkStatus {
+    ACTIVE
+    USED
+    EXPIRED
+}
+
 enum TransactionStatus {
     PENDING
     APPROVED

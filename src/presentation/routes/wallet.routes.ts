@@ -116,24 +116,11 @@ export async function walletRoutes(app: FastifyInstance): Promise<void> {
         },
         preHandler: authenticate
      } ,controller.create.bind(controller));
-    app.get('/wallets/owner/:ownerId', { 
+    app.get('/wallets/me', { 
         schema: {
             tags: ['Wallet Routes'],
-            summary: 'Get Wallet By Id',
-            description: 'Get for a wallet by id',
-
-            params: {
-                type: 'object',
-                properties: {
-                    ownerId: {
-                        type: 'string',
-                        format: 'uuid',
-                        description: 'owner ID',
-                        example: '936585a5-3482-4868-8477-e819f4d4317e'
-                    }
-                },
-                required: ['ownerId']
-            },
+            summary: 'Get My Wallet',
+            description: 'Get My Wallet',
 
             security: [
                 { bearerAuth: [] }
@@ -217,7 +204,7 @@ export async function walletRoutes(app: FastifyInstance): Promise<void> {
             }
         },
         preHandler: authenticate
-     } ,controller.getByOwnerId.bind(controller));
+     } ,controller.getMyWallet.bind(controller));
     app.patch('/wallets/:id/credit', { 
         schema: {
             tags: ['Wallet Routes'],
