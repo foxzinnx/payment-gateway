@@ -3,12 +3,89 @@ import { AuthController } from "../controllers/auth.controller.js";
 
 const controller = new AuthController();
 
-export async function authRoutes(app: FastifyInstance): Promise<void>{
-    app.post('/auth/customer/register',{
+const authDataResponse = {
+    type: 'object',
+    properties: {
+        accessToken: {
+            type: 'string',
+            description: 'Short-lived JWT access token. Expires according to JWT_ACCESS_EXPIRES_IN env var (default: 15m).',
+            example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        },
+        refreshToken: {
+            type: 'string',
+            description: 'Long-lived JWT refresh token. Expires according to JWT_REFRESH_EXPIRES_IN env var (default: 7d).',
+            example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        },
+        user: {
+            type: 'object',
+            properties: {
+                id: {
+                    type: 'string',
+                    format: 'uuid',
+                    example: '7624ca42-1752-4eff-bd75-371212dee0c0'
+                },
+                name: {
+                    type: 'string',
+                    example: 'João Silva'
+                },
+                email: {
+                    type: 'string',
+                    format: 'email',
+                    example: 'joaocliente@email.com'
+                }
+            },
+            required: ['id', 'name', 'email']
+        }
+    },
+    required: ['accessToken', 'refreshToken', 'user']
+}
+
+const invalidArgumentResponse = {
+    description: 'Email or document (CPF/CNPJ) already in use',
+    type: 'object',
+    properties: {
+        status: { type: 'string', enum: ['error'], example: 'error' },
+        code: { type: 'string', example: 'INVALID_ARGUMENT' },
+        message: { type: 'string', example: 'Email already in use' }
+    }
+}
+
+const validationErrorResponse = {
+    description: 'Request body failed schema validation',
+    type: 'object',
+    properties: {
+        status: { type: 'string', enum: ['error'], example: 'error' },
+        code: { type: 'string', example: 'VALIDATION_ERROR' },
+        message: { type: 'string', example: 'Validation failed' },
+        issues: {
+            type: 'array',
+            items: {
+                type: 'object',
+                properties: {
+                    field: { type: 'string', example: 'email' },
+                    message: { type: 'string', example: 'Invalid email' }
+                }
+            }
+        }
+    }
+}
+
+const unauthorizedResponse = {
+    description: 'Invalid credentials or expired/invalid refresh token',
+    type: 'object',
+    properties: {
+        status: { type: 'string', enum: ['error'], example: 'error' },
+        code: { type: 'string', example: 'UNAUTHORIZED' },
+        message: { type: 'string', example: 'Invalid credentials' }
+    }
+}
+
+export async function authRoutes(app: FastifyInstance): Promise<void> {
+    app.post('/auth/customer/register', {
         schema: {
             tags: ['Customer Auth Routes'],
             summary: 'Register a customer',
-            description: 'Register a customer in system',
+            description: 'Creates a new customer account and returns JWT access and refresh tokens. Both email and CPF must be unique across all customers.',
 
             body: {
                 type: 'object',
@@ -17,27 +94,32 @@ export async function authRoutes(app: FastifyInstance): Promise<void>{
                         type: 'string',
                         minLength: 3,
                         maxLength: 100,
+                        description: 'Full name of the customer.',
                         example: 'João Silva'
                     },
                     email: {
                         type: 'string',
                         format: 'email',
+                        description: 'Unique email address. Will be normalized to lowercase.',
                         example: 'joaocliente@email.com'
                     },
                     cpf: {
                         type: 'string',
                         minLength: 11,
                         maxLength: 14,
-                        example: '48486734029'
+                        description: 'Brazilian CPF. Accepts formatted (000.000.000-00) or digits only.',
+                        example: '484.867.340-29'
                     },
                     password: {
                         type: 'string',
                         minLength: 6,
                         maxLength: 100,
+                        description: 'Password with at least 6 characters. Stored as bcrypt hash.',
                         example: 'senha123'
                     },
                     phone: {
                         type: 'string',
+                        description: 'Optional phone number.',
                         example: '18995262362'
                     }
                 },
@@ -47,79 +129,25 @@ export async function authRoutes(app: FastifyInstance): Promise<void>{
 
             response: {
                 201: {
-                    description: 'Customer created with successfully',
+                    description: 'Customer registered successfully',
                     type: 'object',
                     properties: {
-                        status: {
-                            type: 'string',
-                            enum: ['success'],
-                            example: 'success'
-                        },
-                        data: {
-                            type: 'object',
-                            properties: {
-                                accessToken: {
-                                    type: 'string',
-                                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-                                },
-                                refreshToken: {
-                                    type: 'string',
-                                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-                                },
-                                user: {
-                                    type: 'object',
-                                    properties: {
-                                        id: {
-                                            type: 'string',
-                                            format: 'uuid',
-                                            example: '7624ca42-1752-4eff-bd75-371212dee0c0'
-                                        },
-                                        name: {
-                                            type: 'string',
-                                            example: 'João Silva'
-                                        },
-                                        email: {
-                                            type: 'string',
-                                            format: 'email',
-                                            example: 'joaocliente@email.com'
-                                        }
-                                    },
-                                    required: ['id', 'name', 'email']
-                                }
-                            },
-                            required: ['accessToken', 'refreshToken', 'user']
-                        }
+                        status: { type: 'string', enum: ['success'], example: 'success' },
+                        data: authDataResponse
                     },
                     required: ['status', 'data']
                 },
-
-                400: {
-                    description: 'Email already in use',
-                    type: 'object',
-                    properties: {
-                        status: {
-                            type: 'string',
-                            enum: ['error'],
-                            example: 'error'
-                        },
-                        code: {
-                            type: 'string',
-                            example: 'EMAIL_ALREADY_IN_USE',
-                        },
-                        message: {
-                            type: 'string',
-                            example: 'Email already in use'
-                        }
-                    }
-                }
+                400: validationErrorResponse,
+                409: invalidArgumentResponse
             }
         }
     }, controller.registerCustomer.bind(controller));
+
     app.post('/auth/customer/login', {
         schema: {
             tags: ['Customer Auth Routes'],
             summary: 'Authenticate customer',
-            description: 'Authenticates a customer and returns access and refresh tokens',
+            description: 'Authenticates a customer with email and password. Returns new access and refresh tokens, rotating the previous refresh token.',
 
             body: {
                 type: 'object',
@@ -127,102 +155,50 @@ export async function authRoutes(app: FastifyInstance): Promise<void>{
                     email: {
                         type: 'string',
                         format: 'email',
-                        example: 'joaosilva@gmail.com'
+                        example: 'joaocliente@email.com'
                     },
                     password: {
                         type: 'string',
                         example: 'senha123'
                     }
                 },
-                required: ['email', 'password']
+                required: ['email', 'password'],
+                additionalProperties: false
             },
 
             response: {
                 200: {
-                    description: 'Customer authenticated with successfully',
+                    description: 'Customer authenticated successfully',
                     type: 'object',
                     properties: {
-                        status: {
-                            type: 'string',
-                            enum: ['success'],
-                            example: 'success'
-                        },
-                        data: {
-                            type: 'object',
-                            properties: {
-                                accessToken: {
-                                    type: 'string',
-                                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-                                },
-                                refreshToken: {
-                                    type: 'string',
-                                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-                                },
-                                user: {
-                                    type: 'object',
-                                    properties: {
-                                        id: {
-                                            type: 'string',
-                                            format: 'uuid',
-                                            example: '7624ca42-1752-4eff-bd75-371212dee0c0'
-                                        },
-                                        name: {
-                                            type: 'string',
-                                            example: 'João Silva'
-                                        },
-                                        email: {
-                                            type: 'string',
-                                            format: 'email',
-                                            example: 'joaocliente@email.com'
-                                        }
-                                    },
-                                    required: ['id', 'name', 'email']
-                                }
-                            },
-                            required: ['accessToken', 'refreshToken', 'user']
-                        }
+                        status: { type: 'string', enum: ['success'], example: 'success' },
+                        data: authDataResponse
                     },
                     required: ['status', 'data']
                 },
-
-                401: {
-                    description: 'Invalid credentials',
-                    type: 'object',
-                    properties: {
-                        status: {
-                            type: 'string',
-                            enum: ['error'],
-                            example: 'error'
-                        },
-                        code: {
-                            type: 'string',
-                            example: 'UNAUTHORIZED',
-                        },
-                        message: {
-                            type: 'string',
-                            example: 'Invalid credentials'
-                        }
-                    }
-                }
+                400: validationErrorResponse,
+                401: unauthorizedResponse
             }
         }
     }, controller.loginCustomer.bind(controller));
+
     app.post('/auth/customer/refresh', {
         schema: {
             tags: ['Customer Auth Routes'],
-            summary: 'Refresh customer access token',
-            description: 'Uses a valid refresh token to generate a new access token and a new refresh token',
+            summary: 'Refresh customer tokens',
+            description: 'Generates a new access token and rotates the refresh token. The previous refresh token is invalidated after use — each token can only be used once.',
 
             body: {
                 type: 'object',
                 properties: {
                     refreshToken: {
                         type: 'string',
+                        description: 'A valid, non-expired, and previously unused refresh token.',
                         example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
                     }
                 },
                 required: ['refreshToken'],
-                additionalProperties: false,
+                additionalProperties: false
             },
 
             response: {
@@ -230,56 +206,36 @@ export async function authRoutes(app: FastifyInstance): Promise<void>{
                     description: 'Tokens refreshed successfully',
                     type: 'object',
                     properties: {
-                        status: {
-                            type: 'string',
-                            enum: ['success'],
-                            example: 'success'
-                        },
+                        status: { type: 'string', enum: ['success'], example: 'success' },
                         data: {
                             type: 'object',
                             properties: {
-                                accessToken: {
-                                    type: 'string',
-                                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-                                },
-                                refreshToken: {
-                                    type: 'string',
-                                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-                                }
+                                accessToken: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
+                                refreshToken: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' }
                             },
                             required: ['accessToken', 'refreshToken']
                         }
                     },
                     required: ['status', 'data']
                 },
-
                 401: {
-                    description: 'Invalid refresh token',
+                    description: 'Refresh token is invalid, expired, or has already been used',
                     type: 'object',
                     properties: {
-                        status: {
-                            type: 'string',
-                            enum: ['error'],
-                            example: 'error'
-                        },
-                        code: {
-                            type: 'string',
-                            example: 'UNAUTHORIZED',
-                        },
-                        message: {
-                            type: 'string',
-                            example: 'Invalid refresh token'
-                        }
+                        status: { type: 'string', enum: ['error'], example: 'error' },
+                        code: { type: 'string', example: 'UNAUTHORIZED' },
+                        message: { type: 'string', example: 'Invalid refresh token' }
                     }
                 }
             }
         }
-    },controller.refreshCustomer.bind(controller));
+    }, controller.refreshCustomer.bind(controller));
+
     app.post('/auth/merchant/register', {
         schema: {
             tags: ['Merchant Auth Routes'],
             summary: 'Register a merchant',
-            description: 'Register a merchant in system',
+            description: 'Creates a new merchant account and returns JWT access and refresh tokens. Both email and CNPJ must be unique. Merchant status starts as ACTIVE.',
 
             body: {
                 type: 'object',
@@ -288,74 +244,58 @@ export async function authRoutes(app: FastifyInstance): Promise<void>{
                         type: 'string',
                         minLength: 3,
                         maxLength: 150,
-                        example: 'Loja exemplo LTDA'
+                        description: 'Legal business name (razão social).',
+                        example: 'Loja Exemplo LTDA'
                     },
                     tradeName: {
                         type: 'string',
                         minLength: 3,
                         maxLength: 150,
-                        example: 'Loja exemplo'
+                        description: 'Trade name (nome fantasia).',
+                        example: 'Loja Exemplo'
                     },
                     email: {
                         type: 'string',
                         format: 'email',
+                        description: 'Unique business email address.',
                         example: 'contato@lojaempresa.com'
                     },
                     cnpj: {
                         type: 'string',
                         minLength: 14,
                         maxLength: 18,
-                        example: '69102553000151'
+                        description: 'Brazilian CNPJ. Accepts formatted (00.000.000/0000-00) or digits only.',
+                        example: '11.222.333/0001-81'
                     },
                     password: {
                         type: 'string',
                         minLength: 6,
                         maxLength: 100,
+                        description: 'Password with at least 6 characters. Stored as bcrypt hash.',
                         example: 'senhasecreta123'
                     }
                 },
                 required: ['name', 'tradeName', 'email', 'cnpj', 'password'],
-                additionalProperties: false,
+                additionalProperties: false
             },
 
             response: {
                 201: {
-                    description: 'Customer created with successfully',
+                    description: 'Merchant registered successfully',
                     type: 'object',
                     properties: {
-                        status: {
-                            type: 'string',
-                            enum: ['success'],
-                            example: 'success'
-                        },
+                        status: { type: 'string', enum: ['success'], example: 'success' },
                         data: {
                             type: 'object',
                             properties: {
-                                accessToken: {
-                                    type: 'string',
-                                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-                                },
-                                refreshToken: {
-                                    type: 'string',
-                                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-                                },
+                                accessToken: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
+                                refreshToken: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
                                 user: {
                                     type: 'object',
                                     properties: {
-                                        id: {
-                                            type: 'string',
-                                            format: 'uuid',
-                                            example: '7624ca42-1752-4eff-bd75-371212dee0c0'
-                                        },
-                                        name: {
-                                            type: 'string',
-                                            example: 'Loja exemplo LTDA'
-                                        },
-                                        email: {
-                                            type: 'string',
-                                            format: 'email',
-                                            example: 'contato@lojaempresa.com'
-                                        }
+                                        id: { type: 'string', format: 'uuid', example: '7624ca42-1752-4eff-bd75-371212dee0c0' },
+                                        name: { type: 'string', example: 'Loja Exemplo LTDA' },
+                                        email: { type: 'string', format: 'email', example: 'contato@lojaempresa.com' }
                                     },
                                     required: ['id', 'name', 'email']
                                 }
@@ -365,34 +305,17 @@ export async function authRoutes(app: FastifyInstance): Promise<void>{
                     },
                     required: ['status', 'data']
                 },
-
-                400: {
-                    description: 'Email already in use',
-                    type: 'object',
-                    properties: {
-                        status: {
-                            type: 'string',
-                            enum: ['error'],
-                            example: 'error'
-                        },
-                        code: {
-                            type: 'string',
-                            example: 'EMAIL_ALREADY_IN_USE',
-                        },
-                        message: {
-                            type: 'string',
-                            example: 'Email already in use'
-                        }
-                    }
-                }
+                400: validationErrorResponse,
+                409: invalidArgumentResponse
             }
         }
-    },controller.registerMerchant.bind(controller));
+    }, controller.registerMerchant.bind(controller));
+
     app.post('/auth/merchant/login', {
         schema: {
             tags: ['Merchant Auth Routes'],
-            summary: 'Authenticate a merchant',
-            description: 'Authenticates a merchant and returns access and refresh tokens',
+            summary: 'Authenticate merchant',
+            description: 'Authenticates a merchant with email and password. Returns new access and refresh tokens, rotating the previous refresh token.',
 
             body: {
                 type: 'object',
@@ -407,47 +330,27 @@ export async function authRoutes(app: FastifyInstance): Promise<void>{
                         example: 'senhaforte123'
                     }
                 },
-                required: ['email', 'password']
+                required: ['email', 'password'],
+                additionalProperties: false
             },
 
             response: {
                 200: {
-                    description: 'Merchant authenticated with successfully',
+                    description: 'Merchant authenticated successfully',
                     type: 'object',
                     properties: {
-                        status: {
-                            type: 'string',
-                            enum: ['success'],
-                            example: 'success'
-                        },
+                        status: { type: 'string', enum: ['success'], example: 'success' },
                         data: {
                             type: 'object',
                             properties: {
-                                accessToken: {
-                                    type: 'string',
-                                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-                                },
-                                refreshToken: {
-                                    type: 'string',
-                                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-                                },
+                                accessToken: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
+                                refreshToken: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
                                 user: {
                                     type: 'object',
                                     properties: {
-                                        id: {
-                                            type: 'string',
-                                            format: 'uuid',
-                                            example: '7624ca42-1752-4eff-bd75-371212dee0c0'
-                                        },
-                                        name: {
-                                            type: 'string',
-                                            example: 'Loja exemplo LTDA'
-                                        },
-                                        email: {
-                                            type: 'string',
-                                            format: 'email',
-                                            example: 'contato@lojaempresa.com'
-                                        }
+                                        id: { type: 'string', format: 'uuid', example: '7624ca42-1752-4eff-bd75-371212dee0c0' },
+                                        name: { type: 'string', example: 'Loja Exemplo LTDA' },
+                                        email: { type: 'string', format: 'email', example: 'contato@lojaempresa.com' }
                                     },
                                     required: ['id', 'name', 'email']
                                 }
@@ -457,45 +360,29 @@ export async function authRoutes(app: FastifyInstance): Promise<void>{
                     },
                     required: ['status', 'data']
                 },
-
-                401: {
-                    description: 'Invalid credentials',
-                    type: 'object',
-                    properties: {
-                        status: {
-                            type: 'string',
-                            enum: ['error'],
-                            example: 'error'
-                        },
-                        code: {
-                            type: 'string',
-                            example: 'UNAUTHORIZED',
-                        },
-                        message: {
-                            type: 'string',
-                            example: 'Invalid credentials'
-                        }
-                    }
-                }
+                400: validationErrorResponse,
+                401: unauthorizedResponse
             }
         }
-    },controller.loginMerchant.bind(controller));
+    }, controller.loginMerchant.bind(controller));
+
     app.post('/auth/merchant/refresh', {
         schema: {
             tags: ['Merchant Auth Routes'],
-            summary: 'Refresh merchant access token',
-            description: 'Uses a valid refresh token to generate a new access token and a new refresh token',
+            summary: 'Refresh merchant tokens',
+            description: 'Generates a new access token and rotates the refresh token. The previous refresh token is invalidated after use — each token can only be used once.',
 
             body: {
                 type: 'object',
                 properties: {
                     refreshToken: {
                         type: 'string',
+                        description: 'A valid, non-expired, and previously unused refresh token.',
                         example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
                     }
                 },
                 required: ['refreshToken'],
-                additionalProperties: false,
+                additionalProperties: false
             },
 
             response: {
@@ -503,49 +390,28 @@ export async function authRoutes(app: FastifyInstance): Promise<void>{
                     description: 'Tokens refreshed successfully',
                     type: 'object',
                     properties: {
-                        status: {
-                            type: 'string',
-                            enum: ['success'],
-                            example: 'success'
-                        },
+                        status: { type: 'string', enum: ['success'], example: 'success' },
                         data: {
                             type: 'object',
                             properties: {
-                                accessToken: {
-                                    type: 'string',
-                                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-                                },
-                                refreshToken: {
-                                    type: 'string',
-                                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-                                }
+                                accessToken: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
+                                refreshToken: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' }
                             },
                             required: ['accessToken', 'refreshToken']
                         }
                     },
                     required: ['status', 'data']
                 },
-
                 401: {
-                    description: 'Invalid refresh token',
+                    description: 'Refresh token is invalid, expired, or has already been used',
                     type: 'object',
                     properties: {
-                        status: {
-                            type: 'string',
-                            enum: ['error'],
-                            example: 'error'
-                        },
-                        code: {
-                            type: 'string',
-                            example: 'UNAUTHORIZED',
-                        },
-                        message: {
-                            type: 'string',
-                            example: 'Invalid refresh token'
-                        }
+                        status: { type: 'string', enum: ['error'], example: 'error' },
+                        code: { type: 'string', example: 'UNAUTHORIZED' },
+                        message: { type: 'string', example: 'Invalid refresh token' }
                     }
                 }
             }
         }
-    },controller.refreshMerchant.bind(controller));
+    }, controller.refreshMerchant.bind(controller));
 }

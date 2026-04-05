@@ -21,6 +21,7 @@ import { authorizationService } from "../services/authorization.service.impl.js"
 import { CreateTransactionUseCase } from "@/application/use-cases/transaction/create-transaction.use-case.js";
 import { GetTransactionByIdUseCase } from "@/application/use-cases/transaction/get-transaction-by-id.use-case.js";
 import { GetCustomerTransactionsUseCase } from "@/application/use-cases/transaction/get-customer-transactions.use-case.js";
+import { GetWalletByIdUseCase } from "@/application/use-cases/wallet/get-wallet-by-id.use-case.js";
 
 const customerRepository = new PrismaCustomerRepository();
 const merchantRepository = new PrismaMerchantRepository();
@@ -42,7 +43,8 @@ export const container = {
     suspendMerchant: new SuspendMerchantUseCase(merchantRepository),
 
     createWallet: new CreateWalletUseCase(walletRepository),
-    getWalletById: new GetWalletByOwnerIdUseCase(walletRepository),
+    getWalletByOwnerId: new GetWalletByOwnerIdUseCase(walletRepository),
+    getWalletById: new GetWalletByIdUseCase(walletRepository),
     creditWallet: new CreditWalletUseCase(walletRepository),
     debitWallet: new DebitWalletUseCase(walletRepository),
 

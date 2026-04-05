@@ -4,12 +4,27 @@ import { authenticate } from "../middlewares/authenticate.middleware.js";
 
 const controller = new WalletController();
 
+const walletData = {
+    type: 'object',
+    properties: {
+        id: { type: 'string', format: 'uuid', example: '936585a5-3482-4868-8477-e819f4d4317e' },
+        ownerId: { type: 'string', format: 'uuid', example: 'd3e676e3-f36f-4c8b-b567-bace05b09bd5' },
+        ownerType: { type: 'string', enum: ['CUSTOMER', 'MERCHANT'], example: 'CUSTOMER' },
+        balanceInCents: { type: 'integer', example: 0 },
+        balanceFormatted: { type: 'string', example: '0.00' },
+        currency: { type: 'string', enum: ['BRL', 'USD', 'EUR'], example: 'BRL' },
+        createdAt: { type: 'string', format: 'date-time', example: '2026-04-02T17:46:36.457Z' },
+        updatedAt: { type: 'string', format: 'date-time', example: '2026-04-02T17:46:36.457Z' }
+    },
+    required: ['id', 'ownerId', 'ownerType', 'balanceInCents', 'balanceFormatted', 'currency', 'createdAt', 'updatedAt']
+}
+
 export async function walletRoutes(app: FastifyInstance): Promise<void> {
     app.post('/wallets', { 
         schema: {
             tags: ['Wallet Routes'],
             summary: 'Create wallet',
-            description: 'Create a wallet',
+            description: 'Creates a digital wallet for the authenticated user. The ownerId and ownerType are automatically extracted from the JWT token. Each user can only have one wallet.',
 
             security: [
                 { bearerAuth: [] }
@@ -18,23 +33,12 @@ export async function walletRoutes(app: FastifyInstance): Promise<void> {
             body: {
                 type: 'object',
                 properties: {
-                    ownerId: {
-                        type: 'string',
-                        format: 'uuid',
-                        example: 'aacb8331-541b-4496-8c96-ce443f40c5d8'
-                    },
-                    ownerType: {
-                        type: 'string',
-                        enum: ['CUSTOMER', 'MERCHANT'],
-                        example: 'CUSTOMER'
-                    },
                     currency: {
                         type: 'string',
                         enum: ['BRL', 'USD', 'EUR'],
                         example: 'BRL'
                     }
                 },
-                required: ['ownerId', 'ownerType']
             },
 
             response: {
@@ -46,52 +50,19 @@ export async function walletRoutes(app: FastifyInstance): Promise<void> {
                             type: 'string',
                             example: 'success'
                         },
-                        data: {
-                            type: 'object',
-                            properties: {
-                                id: {
-                                    type: 'string',
-                                    format: 'uuid',
-                                    example: '936585a5-3482-4868-8477-e819f4d4317e'
-                                },
-                                ownerId: {
-                                    type: 'string',
-                                    format: 'uuid',
-                                    example: 'd3e676e3-f36f-4c8b-b567-bace05b09bd5'
-                                },
-                                ownerType: {
-                                    type: 'string',
-                                    enum: ['CUSTOMER', 'MERCHANT'],
-                                    example: 'CUSTOMER'
-                                },
-                                balanceInCents: {
-                                    type: 'number',
-                                    example: 0
-                                },
-                                balanceFormatted: {
-                                    type: 'string',
-                                    example: '0.00'
-                                },
-                                currency: {
-                                    type: 'string',
-                                    enum: ['BRL', 'USD', 'EUR'],
-                                    example: 'BRL'
-                                },
-                                createdAt: {
-                                    type: 'string',
-                                    format: 'date',
-                                    example: '2026-04-02T17:46:36.457Z'
-                                },
-                                updatedAt: {
-                                    type: 'string',
-                                    format: 'date',
-                                    example: '2026-04-02T17:46:36.457Z'
-                                }
-                            },
-                            required: ['id', 'ownerId', 'ownerType', 'balanceInCents', 'balanceFormatted', 'currency', 'createdAt', 'updatedAt']
-                        }
+                        data: walletData,
                     },
                     required: ['status', 'data']
+                },
+
+                401: {
+                    description: 'Missing or invalid authorization token',
+                    type: 'object',
+                    properties: {
+                        status: { type: 'string', example: 'error' },
+                        code: { type: 'string', example: 'UNAUTHORIZED' },
+                        message: { type: 'string', example: 'Missing authorization token' }
+                    }
                 },
 
                 409: {
@@ -120,7 +91,7 @@ export async function walletRoutes(app: FastifyInstance): Promise<void> {
         schema: {
             tags: ['Wallet Routes'],
             summary: 'Get My Wallet',
-            description: 'Get My Wallet',
+            description: 'Returns the wallet of the currently authenticated user. The wallet is identified by the JWT token, so no parameters are needed.',
 
             security: [
                 { bearerAuth: [] }
@@ -135,52 +106,19 @@ export async function walletRoutes(app: FastifyInstance): Promise<void> {
                             type: 'string',
                             example: 'success'
                         },
-                        data: {
-                            type: 'object',
-                            properties: {
-                                id: {
-                                    type: 'string',
-                                    format: 'uuid',
-                                    example: '936585a5-3482-4868-8477-e819f4d4317e'
-                                },
-                                ownerId: {
-                                    type: 'string',
-                                    format: 'uuid',
-                                    example: 'd3e676e3-f36f-4c8b-b567-bace05b09bd5'
-                                },
-                                ownerType: {
-                                    type: 'string',
-                                    enum: ['CUSTOMER', 'MERCHANT'],
-                                    example: 'CUSTOMER'
-                                },
-                                balanceInCents: {
-                                    type: 'number',
-                                    example: 0
-                                },
-                                balanceFormatted: {
-                                    type: 'string',
-                                    example: '0.00'
-                                },
-                                currency: {
-                                    type: 'string',
-                                    enum: ['BRL', 'USD', 'EUR'],
-                                    example: 'BRL'
-                                },
-                                createdAt: {
-                                    type: 'string',
-                                    format: 'date',
-                                    example: '2026-04-02T17:46:36.457Z'
-                                },
-                                updatedAt: {
-                                    type: 'string',
-                                    format: 'date',
-                                    example: '2026-04-02T17:46:36.457Z'
-                                }
-                            },
-                            required: ['id', 'ownerId', 'ownerType', 'balanceInCents', 'balanceFormatted', 'currency', 'createdAt', 'updatedAt']
-                        }
+                        data: walletData,
                     },
                     required: ['status', 'data']
+                },
+
+                401: {
+                    description: 'Missing or invalid authorization token',
+                    type: 'object',
+                    properties: {
+                        status: { type: 'string', example: 'error' },
+                        code: { type: 'string', example: 'UNAUTHORIZED' },
+                        message: { type: 'string', example: 'Missing authorization token' }
+                    }
                 },
 
                 404: {
@@ -209,7 +147,7 @@ export async function walletRoutes(app: FastifyInstance): Promise<void> {
         schema: {
             tags: ['Wallet Routes'],
             summary: 'Credit wallet',
-            description: 'Credit a wallet',
+            description: 'Adds balance to the authenticated user\'s own wallet. The wallet must belong to the user making the request. Use this for deposits only — to transfer funds to another user, use POST /transactions.',
 
             params: {
                 type: 'object',
@@ -232,7 +170,9 @@ export async function walletRoutes(app: FastifyInstance): Promise<void> {
                 type: 'object',
                 properties: {
                     amountInCents: {
-                        type: 'number',
+                        type: 'integer',
+                        description: 'Amount in cents (e.g., 2000 = R$20.00). Must be a positive integer.',
+                        minimum: 1,
                         example: 2000
                     }
                 },
@@ -248,52 +188,19 @@ export async function walletRoutes(app: FastifyInstance): Promise<void> {
                             type: 'string',
                             example: 'success'
                         },
-                        data: {
-                            type: 'object',
-                            properties: {
-                                id: {
-                                    type: 'string',
-                                    format: 'uuid',
-                                    example: '936585a5-3482-4868-8477-e819f4d4317e'
-                                },
-                                ownerId: {
-                                    type: 'string',
-                                    format: 'uuid',
-                                    example: 'd3e676e3-f36f-4c8b-b567-bace05b09bd5'
-                                },
-                                ownerType: {
-                                    type: 'string',
-                                    enum: ['CUSTOMER', 'MERCHANT'],
-                                    example: 'CUSTOMER'
-                                },
-                                balanceInCents: {
-                                    type: 'number',
-                                    example: 2000
-                                },
-                                balanceFormatted: {
-                                    type: 'string',
-                                    example: '20.00'
-                                },
-                                currency: {
-                                    type: 'string',
-                                    enum: ['BRL', 'USD', 'EUR'],
-                                    example: 'BRL'
-                                },
-                                createdAt: {
-                                    type: 'string',
-                                    format: 'date',
-                                    example: '2026-04-02T17:46:36.457Z'
-                                },
-                                updatedAt: {
-                                    type: 'string',
-                                    format: 'date',
-                                    example: '2026-04-02T17:46:36.457Z'
-                                }
-                            },
-                            required: ['id', 'ownerId', 'ownerType', 'balanceInCents', 'balanceFormatted', 'currency', 'createdAt', 'updatedAt']
-                        }
+                        data: walletData,
                     },
                     required: ['status', 'data']
+                },
+
+                401: {
+                    description: 'Wallet does not belong to the authenticated user',
+                    type: 'object',
+                    properties: {
+                        status: { type: 'string', example: 'error' },
+                        code: { type: 'string', example: 'UNAUTHORIZED' },
+                        message: { type: 'string', example: 'You can only deposit into your own wallet' }
+                    }
                 },
 
                 404: {
@@ -322,7 +229,7 @@ export async function walletRoutes(app: FastifyInstance): Promise<void> {
         schema: {
             tags: ['Wallet Routes'],
             summary: 'Debit wallet',
-            description: 'Debit a wallet',
+            description: 'Withdraws balance from the authenticated user\'s own wallet. The wallet must belong to the user making the request. Fails with 422 if balance is insufficient.',
 
             params: {
                 type: 'object',
@@ -345,7 +252,9 @@ export async function walletRoutes(app: FastifyInstance): Promise<void> {
                 type: 'object',
                 properties: {
                     amountInCents: {
-                        type: 'number',
+                        type: 'integer',
+                        description: 'Amount in cents (e.g., 2000 = R$20.00). Must be a positive integer.',
+                        minimum: 1,
                         example: 2000
                     }
                 },
@@ -361,52 +270,19 @@ export async function walletRoutes(app: FastifyInstance): Promise<void> {
                             type: 'string',
                             example: 'success'
                         },
-                        data: {
-                            type: 'object',
-                            properties: {
-                                id: {
-                                    type: 'string',
-                                    format: 'uuid',
-                                    example: '936585a5-3482-4868-8477-e819f4d4317e'
-                                },
-                                ownerId: {
-                                    type: 'string',
-                                    format: 'uuid',
-                                    example: 'd3e676e3-f36f-4c8b-b567-bace05b09bd5'
-                                },
-                                ownerType: {
-                                    type: 'string',
-                                    enum: ['CUSTOMER', 'MERCHANT'],
-                                    example: 'CUSTOMER'
-                                },
-                                balanceInCents: {
-                                    type: 'number',
-                                    example: 0
-                                },
-                                balanceFormatted: {
-                                    type: 'string',
-                                    example: '0.00'
-                                },
-                                currency: {
-                                    type: 'string',
-                                    enum: ['BRL', 'USD', 'EUR'],
-                                    example: 'BRL'
-                                },
-                                createdAt: {
-                                    type: 'string',
-                                    format: 'date',
-                                    example: '2026-04-02T17:46:36.457Z'
-                                },
-                                updatedAt: {
-                                    type: 'string',
-                                    format: 'date',
-                                    example: '2026-04-02T17:46:36.457Z'
-                                }
-                            },
-                            required: ['id', 'ownerId', 'ownerType', 'balanceInCents', 'balanceFormatted', 'currency', 'createdAt', 'updatedAt']
-                        }
+                        data: walletData,
                     },
                     required: ['status', 'data']
+                },
+
+                401: {
+                    description: 'Wallet does not belong to the authenticated user',
+                    type: 'object',
+                    properties: {
+                        status: { type: 'string', example: 'error' },
+                        code: { type: 'string', example: 'UNAUTHORIZED' },
+                        message: { type: 'string', example: 'You can only withdraw into your own wallet' }
+                    }
                 },
 
                 404: {

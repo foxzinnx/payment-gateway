@@ -1,10 +1,6 @@
 import { z } from 'zod';
 
 export const createWalletSchema = z.object({
-    ownerId: z.uuid('Owner ID is required'),
-    ownerType: z.enum(['CUSTOMER', 'MERCHANT'], {
-        message: 'Owner type is required',
-    }),
     currency: z.enum(['BRL', 'USD', 'EUR']).default('BRL')
 });
 

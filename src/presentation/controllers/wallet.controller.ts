@@ -23,7 +23,7 @@ export class WalletController {
     async getMyWallet(request: FastifyRequest, reply: FastifyReply): Promise<void>{
         const ownerId = request.user.sub;
         
-        const output = await container.getWalletById.execute(ownerId);
+        const output = await container.getWalletByOwnerId.execute(ownerId);
 
         reply.status(200).send({ status: 'success', data: output });
     }
