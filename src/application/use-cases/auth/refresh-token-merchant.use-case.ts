@@ -1,11 +1,11 @@
 import type { RefreshTokenInputDTO, RefreshTokenOutputDTO } from "@/application/dtos/auth.dto.js";
 import { UnauthorizedError } from "@/domain/errors/unauthorized.error.js";
-import type { IMerchantRepository } from "@/domain/repositories/merchant.repository.js";
+import type { MerchantRepository } from "@/domain/repositories/merchant.repository.js";
 import { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
 import { tokenService } from "@/infra/services/token.service.js";
 
 export class RefreshTokenMerchantUseCase{
-    constructor(private readonly merchantRepository: IMerchantRepository){}
+    constructor(private readonly merchantRepository: MerchantRepository){}
 
     async execute(input: RefreshTokenInputDTO): Promise<RefreshTokenOutputDTO> {
         const payload = tokenService.verifyRefreshToken(input.refreshToken);

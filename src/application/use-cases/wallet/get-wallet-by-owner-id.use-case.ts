@@ -1,11 +1,11 @@
 import type { WalletOutputDTO } from "@/application/dtos/wallet.dto.js";
 import type { Wallet } from "@/domain/entities/wallet.entity.js";
 import { NotFoundError } from "@/domain/errors/not-found.error.js";
-import type { IWalletRepository } from "@/domain/repositories/wallet.repository.js";
+import type { WalletRepository } from "@/domain/repositories/wallet.repository.js";
 import { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
 
 export class GetWalletByOwnerIdUseCase{
-    constructor(private readonly walletRepository: IWalletRepository){}
+    constructor(private readonly walletRepository: WalletRepository){}
 
     async execute(ownerId: string): Promise<WalletOutputDTO>{
         const wallet = await this.walletRepository.findByOwnerId(

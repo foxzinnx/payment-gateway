@@ -3,7 +3,7 @@ import { CNPJ } from "@/domain/value-objects/cnpj.vo.js";
 import { Email } from "@/domain/value-objects/email.vo.js";
 import { Password } from "@/domain/value-objects/password.vo.js";
 import { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
-import type { MerchantStatus, Merchant as PrismaMerchant } from "generated/prisma/client.js";
+import type { MerchantStatus, Merchant as PrismaMerchant } from "../../../../../generated/prisma/client.js";
 
 export class MerchantMapper {
     static toDomain(raw: PrismaMerchant): Merchant {

@@ -1,8 +1,8 @@
 import type { Merchant } from "@/domain/entities/merchant.entity.js";
-import type { IMerchantRepository } from "@/domain/repositories/merchant.repository.js";
+import type { MerchantRepository } from "@/domain/repositories/merchant.repository.js";
 import type { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
 
-export class InMemoryMerchantRepository implements IMerchantRepository {
+export class InMemoryMerchantRepository implements MerchantRepository {
     public items: Merchant[] = [];
 
     async findById(id: UniqueEntityId): Promise<Merchant | null> {

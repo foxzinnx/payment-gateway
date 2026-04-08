@@ -1,8 +1,8 @@
 import type { Wallet } from "@/domain/entities/wallet.entity.js";
-import type { IWalletRepository } from "@/domain/repositories/wallet.repository.js";
+import type { WalletRepository } from "@/domain/repositories/wallet.repository.js";
 import type { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
 
-export class InMemoryWalletRepository implements IWalletRepository{
+export class InMemoryWalletRepository implements WalletRepository{
     public items: Wallet[] = [];
     
     async findById(id: UniqueEntityId): Promise<Wallet | null> {

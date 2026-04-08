@@ -2,11 +2,11 @@ import type { AuthOutputDTO, RegisterMerchantInputDTO } from "@/application/dtos
 import { Merchant } from "@/domain/entities/merchant.entity.js";
 import { CNPJAlreadyInUseError } from "@/domain/errors/cnpj-already-in-use.error.js";
 import { EmailAlreadyInUseError } from "@/domain/errors/email-already-in-use.error.js";
-import type { IMerchantRepository } from "@/domain/repositories/merchant.repository.js";
+import type { MerchantRepository } from "@/domain/repositories/merchant.repository.js";
 import { tokenService } from "@/infra/services/token.service.js";
 
 export class RegisterMerchantUseCase {
-    constructor(private readonly merchantRepository: IMerchantRepository){}
+    constructor(private readonly merchantRepository: MerchantRepository){}
 
     async execute(input: RegisterMerchantInputDTO): Promise<AuthOutputDTO> {
         const existingByEmail = await this.merchantRepository.findByEmail(input.email);

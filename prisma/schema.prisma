@@ -35,7 +35,7 @@ model Merchant {
     email        String         @unique
     cnpj         String         @unique
     password     String
-    refreshToken String         @map("refresh_token")
+    refreshToken String?        @map("refresh_token")
     status       MerchantStatus @default(ACTIVE)
     createdAt    DateTime       @default(now()) @map("created_at")
     updatedAt    DateTime       @updatedAt @map("updated_at")

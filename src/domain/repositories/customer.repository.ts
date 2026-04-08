@@ -1,7 +1,7 @@
 import type { Customer } from "../entities/customer.entity.js";
 import type { UniqueEntityId } from "../value-objects/unique-entity-id.vo.js";
 
-export interface ICustomerRepository {
+export interface CustomerRepository {
     findById(id: UniqueEntityId): Promise<Customer | null>;
     findByEmail(email: string): Promise<Customer | null>;
     findByCpf(cpf: string): Promise<Customer | null>;

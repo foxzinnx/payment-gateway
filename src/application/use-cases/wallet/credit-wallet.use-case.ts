@@ -1,12 +1,12 @@
 import type { CreditWalletInputDTO, WalletOutputDTO } from "@/application/dtos/wallet.dto.js";
 import type { Wallet } from "@/domain/entities/wallet.entity.js";
 import { NotFoundError } from "@/domain/errors/not-found.error.js";
-import type { IWalletRepository } from "@/domain/repositories/wallet.repository.js";
+import type { WalletRepository } from "@/domain/repositories/wallet.repository.js";
 import { Money } from "@/domain/value-objects/money.vo.js";
 import { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
 
 export class CreditWalletUseCase{
-    constructor(private readonly walletRepository: IWalletRepository){}
+    constructor(private readonly walletRepository: WalletRepository){}
 
     async execute(input: CreditWalletInputDTO): Promise<WalletOutputDTO>{
         const wallet = await this.walletRepository.findById(

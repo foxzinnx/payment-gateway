@@ -2,11 +2,11 @@ import type { MerchantOutputDTO, UpdateMerchantInputDTO } from "@/application/dt
 import type { Merchant } from "@/domain/entities/merchant.entity.js";
 import { EmailAlreadyInUseError } from "@/domain/errors/email-already-in-use.error.js";
 import { NotFoundError } from "@/domain/errors/not-found.error.js";
-import type { IMerchantRepository } from "@/domain/repositories/merchant.repository.js";
+import type { MerchantRepository } from "@/domain/repositories/merchant.repository.js";
 import { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
 
 export class UpdateMerchantUseCase{
-    constructor(private readonly merchantRepository: IMerchantRepository){}
+    constructor(private readonly merchantRepository: MerchantRepository){}
 
     async execute(id: string, input: UpdateMerchantInputDTO): Promise<MerchantOutputDTO>{
         const merchant = await this.merchantRepository.findById(

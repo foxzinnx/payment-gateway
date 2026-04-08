@@ -1,8 +1,8 @@
 import type { Customer } from "@/domain/entities/customer.entity.js";
-import type { ICustomerRepository } from "@/domain/repositories/customer.repository.js";
+import type { CustomerRepository } from "@/domain/repositories/customer.repository.js";
 import type { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
 
-export class InMemoryCustomerRepository implements ICustomerRepository {
+export class InMemoryCustomerRepository implements CustomerRepository {
     public items: Customer[] = [];
     
     async findById(id: UniqueEntityId): Promise<Customer | null> {

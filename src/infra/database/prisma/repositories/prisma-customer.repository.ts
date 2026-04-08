@@ -1,10 +1,10 @@
 import type { Customer } from "@/domain/entities/customer.entity.js";
-import type { ICustomerRepository } from "@/domain/repositories/customer.repository.js";
+import type { CustomerRepository } from "@/domain/repositories/customer.repository.js";
 import type { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
 import { prisma } from "../prisma.client.js";
 import { CustomerMapper } from "../mappers/customer.mapper.js";
 
-export class PrismaCustomerRepository implements ICustomerRepository {
+export class PrismaCustomerRepository implements CustomerRepository {
     async findById(id: UniqueEntityId): Promise<Customer | null> {
         const raw = await prisma.customer.findUnique({
             where: { id: id.value }

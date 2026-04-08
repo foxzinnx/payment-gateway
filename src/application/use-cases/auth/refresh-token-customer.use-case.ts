@@ -1,11 +1,11 @@
 import type { RefreshTokenInputDTO, RefreshTokenOutputDTO } from "@/application/dtos/auth.dto.js";
 import { UnauthorizedError } from "@/domain/errors/unauthorized.error.js";
-import type { ICustomerRepository } from "@/domain/repositories/customer.repository.js";
+import type { CustomerRepository } from "@/domain/repositories/customer.repository.js";
 import { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
 import { tokenService } from "@/infra/services/token.service.js";
 
 export class RefreshTokenCustomerUseCase {
-    constructor(private readonly customerRepository: ICustomerRepository){}
+    constructor(private readonly customerRepository: CustomerRepository){}
 
     async execute(input: RefreshTokenInputDTO): Promise<RefreshTokenOutputDTO>{
         const payload = tokenService.verifyRefreshToken(input.refreshToken);

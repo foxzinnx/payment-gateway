@@ -1,11 +1,11 @@
 import type { CreateWalletInputDTO, WalletOutputDTO } from "@/application/dtos/wallet.dto.js";
 import { Wallet } from "@/domain/entities/wallet.entity.js";
 import { InvalidArgumentError } from "@/domain/errors/invalid-argument.error.js";
-import type { IWalletRepository } from "@/domain/repositories/wallet.repository.js";
+import type { WalletRepository } from "@/domain/repositories/wallet.repository.js";
 import { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
 
 export class CreateWalletUseCase{
-    constructor(private readonly walletRepository: IWalletRepository){}
+    constructor(private readonly walletRepository: WalletRepository){}
 
     async execute(input: CreateWalletInputDTO): Promise<WalletOutputDTO>{
         const ownerId = new UniqueEntityId(input.ownerId);

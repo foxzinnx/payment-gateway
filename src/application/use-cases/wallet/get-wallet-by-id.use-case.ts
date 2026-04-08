@@ -1,10 +1,10 @@
-import type { IWalletRepository } from '@/domain/repositories/wallet.repository.js'
+import type { WalletRepository } from '@/domain/repositories/wallet.repository.js'
 import type { WalletOutputDTO } from '@/application/dtos/wallet.dto.js'
 import { UniqueEntityId } from '@/domain/value-objects/unique-entity-id.vo.js'
 import { NotFoundError } from '@/domain/errors/not-found.error.js'
 
 export class GetWalletByIdUseCase {
-  constructor(private readonly walletRepository: IWalletRepository) {}
+  constructor(private readonly walletRepository: WalletRepository) {}
 
   async execute(id: string): Promise<WalletOutputDTO> {
     const wallet = await this.walletRepository.findById(

@@ -2,11 +2,11 @@ import type { AuthOutputDTO, RegisterCustomerInputDTO } from "@/application/dtos
 import { Customer } from "@/domain/entities/customer.entity.js";
 import { CPFAlreadyInUseError } from "@/domain/errors/cpf-already-in-use.error.js";
 import { EmailAlreadyInUseError } from "@/domain/errors/email-already-in-use.error.js";
-import type { ICustomerRepository } from "@/domain/repositories/customer.repository.js";
+import type { CustomerRepository } from "@/domain/repositories/customer.repository.js";
 import { tokenService } from "@/infra/services/token.service.js";
 
 export class RegisterCustomerUseCase {
-    constructor(private readonly customerRepository: ICustomerRepository){}
+    constructor(private readonly customerRepository: CustomerRepository){}
 
     async execute(input: RegisterCustomerInputDTO): Promise<AuthOutputDTO>{
         const existingByEmail = await this.customerRepository.findByEmail(input.email);

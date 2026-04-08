@@ -2,11 +2,11 @@ import type { CustomerOutputDTO, UpdateCustomerInputDTO } from "@/application/dt
 import type { Customer } from "@/domain/entities/customer.entity.js";
 import { EmailAlreadyInUseError } from "@/domain/errors/email-already-in-use.error.js";
 import { NotFoundError } from "@/domain/errors/not-found.error.js";
-import type { ICustomerRepository } from "@/domain/repositories/customer.repository.js";
+import type { CustomerRepository } from "@/domain/repositories/customer.repository.js";
 import { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
 
 export class UpdateCustomerUseCase {
-    constructor(private readonly customerRepository: ICustomerRepository){}
+    constructor(private readonly customerRepository: CustomerRepository){}
 
     async execute(id: string, input: UpdateCustomerInputDTO): Promise<CustomerOutputDTO>{
         const customer = await this.customerRepository.findById(

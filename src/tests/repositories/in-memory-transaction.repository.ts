@@ -1,8 +1,8 @@
-import type { ITransactionRepository } from '@/domain/repositories/transaction.repository.js'
+import type { TransactionRepository } from '@/domain/repositories/transaction.repository.js'
 import { Transaction } from '@/domain/entities/transaction.entity.js'
 import { UniqueEntityId } from '@/domain/value-objects/unique-entity-id.vo.js'
 
-export class InMemoryTransactionRepository implements ITransactionRepository {
+export class InMemoryTransactionRepository implements TransactionRepository {
   public items: Transaction[] = []
 
   async findById(id: UniqueEntityId): Promise<Transaction | null> {
@@ -11,6 +11,10 @@ export class InMemoryTransactionRepository implements ITransactionRepository {
 
   async findByIdempotencyKey(key: string): Promise<Transaction | null> {
     return this.items.find((t) => t.idempotencyKey === key) ?? null
+  }
+
+  findAllByCustomerId(customerId: UniqueEntityId): Promise<Transaction[]> {
+    throw new Error('Method not implemented.')
   }
 
   async save(transaction: Transaction): Promise<void> {

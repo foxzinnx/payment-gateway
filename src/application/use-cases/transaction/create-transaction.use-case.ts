@@ -1,20 +1,20 @@
 import type { CreateTransactionInputDTO, TransactionOutputDTO } from "@/application/dtos/transaction.dto.js";
 import { Transaction } from "@/domain/entities/transaction.entity.js";
 import { NotFoundError } from "@/domain/errors/not-found.error.js";
-import type { ICustomerRepository } from "@/domain/repositories/customer.repository.js";
-import type { IMerchantRepository } from "@/domain/repositories/merchant.repository.js";
-import type { ITransactionRepository } from "@/domain/repositories/transaction.repository.js";
-import type { IWalletRepository } from "@/domain/repositories/wallet.repository.js";
-import type { IAuthorizationService } from "@/domain/services/authorization.service.js";
+import type { CustomerRepository } from "@/domain/repositories/customer.repository.js";
+import type { MerchantRepository } from "@/domain/repositories/merchant.repository.js";
+import type { TransactionRepository } from "@/domain/repositories/transaction.repository.js";
+import type { WalletRepository } from "@/domain/repositories/wallet.repository.js";
+import type { AuthorizationService } from "@/domain/services/authorization.service.js";
 import { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
 
 export class CreateTransactionUseCase {
     constructor(
-        private readonly transactionRepository: ITransactionRepository,
-        private readonly customerRepository: ICustomerRepository,
-        private readonly merchantRepository: IMerchantRepository,
-        private readonly walletRepository: IWalletRepository,
-        private readonly authorizationService: IAuthorizationService
+        private readonly transactionRepository: TransactionRepository,
+        private readonly customerRepository: CustomerRepository,
+        private readonly merchantRepository: MerchantRepository,
+        private readonly walletRepository: WalletRepository,
+        private readonly authorizationService: AuthorizationService
     ){}
 
     async execute(customerId: string, input: CreateTransactionInputDTO): Promise<TransactionOutputDTO> {

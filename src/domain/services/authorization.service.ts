@@ -6,6 +6,6 @@ export type AuthorizationResult =
     |   { authorized: true }
     |   { authorized: false; reason: string }
 
-export interface IAuthorizationService {
+export interface AuthorizationService {
     authorize(transaction: Transaction, customerWallet: Wallet, merchant: Merchant): AuthorizationResult;
 }

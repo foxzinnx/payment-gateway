@@ -1,10 +1,10 @@
 import type { AuthOutputDTO, LoginInputDTO } from "@/application/dtos/auth.dto.js";
 import { UnauthorizedError } from "@/domain/errors/unauthorized.error.js";
-import type { ICustomerRepository } from "@/domain/repositories/customer.repository.js";
+import type { CustomerRepository } from "@/domain/repositories/customer.repository.js";
 import { tokenService } from "@/infra/services/token.service.js";
 
 export class LoginCustomerUseCase{
-    constructor(private readonly customerRepository: ICustomerRepository){}
+    constructor(private readonly customerRepository: CustomerRepository){}
 
     async execute(input: LoginInputDTO): Promise<AuthOutputDTO>{
         const customer = await this.customerRepository.findByEmail(input.email);

@@ -1,11 +1,11 @@
-import type { ITransactionRepository } from '@/domain/repositories/transaction.repository.js'
+import type { TransactionRepository } from '@/domain/repositories/transaction.repository.js'
 import { Transaction } from '@/domain/entities/transaction.entity.js'
 import type { TransactionOutputDTO } from '@/application/dtos/transaction.dto.js'
 import { UniqueEntityId } from '@/domain/value-objects/unique-entity-id.vo.js'
 
 export class GetCustomerTransactionsUseCase {
   constructor(
-    private readonly transactionRepository: ITransactionRepository
+    private readonly transactionRepository: TransactionRepository
   ) {}
 
   async execute(customerId: string): Promise<TransactionOutputDTO[]> {

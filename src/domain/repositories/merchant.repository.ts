@@ -1,7 +1,7 @@
 import type { Merchant } from "../entities/merchant.entity.js";
 import type { UniqueEntityId } from "../value-objects/unique-entity-id.vo.js";
 
-export interface IMerchantRepository {
+export interface MerchantRepository {
     findById(id: UniqueEntityId): Promise<Merchant | null>;
     findByEmail(email: string): Promise<Merchant | null>;
     findByCnpj(cnpj: string): Promise<Merchant | null>;

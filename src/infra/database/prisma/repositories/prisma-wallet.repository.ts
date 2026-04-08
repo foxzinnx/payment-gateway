@@ -1,10 +1,10 @@
 import type { Wallet } from "@/domain/entities/wallet.entity.js";
-import type { IWalletRepository } from "@/domain/repositories/wallet.repository.js";
+import type { WalletRepository } from "@/domain/repositories/wallet.repository.js";
 import type { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
 import { prisma } from "../prisma.client.js";
 import { WalletMapper } from "../mappers/wallet.mapper.js";
 
-export class PrismaWalletRepository implements IWalletRepository {
+export class PrismaWalletRepository implements WalletRepository {
     async findById(id: UniqueEntityId): Promise<Wallet | null> {
         const raw = await prisma.wallet.findUnique({
             where: { id: id.value }

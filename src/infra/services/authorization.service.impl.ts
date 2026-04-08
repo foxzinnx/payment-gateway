@@ -1,11 +1,11 @@
 import type { Merchant } from "@/domain/entities/merchant.entity.js";
 import type { Transaction } from "@/domain/entities/transaction.entity.js";
 import type { Wallet } from "@/domain/entities/wallet.entity.js";
-import type { AuthorizationResult, IAuthorizationService } from "@/domain/services/authorization.service.js";
+import type { AuthorizationResult, AuthorizationService } from "@/domain/services/authorization.service.js";
 
 const MAX_TRANSACTION_AMOUNT_IN_CENTS = 1_000_000
 
-export class AuthorizationServiceImpl implements IAuthorizationService {
+export class AuthorizationServiceImpl implements AuthorizationService {
     authorize(transaction: Transaction, customerWallet: Wallet, merchant: Merchant): AuthorizationResult {
         if(!merchant.isActive){
             return {
