@@ -37,8 +37,8 @@ export class PaymentLink extends Entity<PaymentLinkProps>{
         props: {
             merchantId: UniqueEntityId,
             amountInCents: number,
-            currency?: Currency,
-            description?: string
+            currency?: Currency | undefined,
+            description?: string | undefined
         },
         id?: UniqueEntityId
     ): PaymentLink {
