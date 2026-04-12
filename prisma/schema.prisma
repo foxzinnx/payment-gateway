@@ -76,6 +76,7 @@ model PaymentLink {
     code          String            @unique
     merchantId    String            @map("merchant_id")
     amountInCents Int               @map("amount_in_cents")
+    currency      String            @default("BRL")
     description   String?
     status        PaymentLinkStatus @default(ACTIVE)
     expiresAt     DateTime          @map("expires_at")
