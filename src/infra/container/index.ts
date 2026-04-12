@@ -22,11 +22,18 @@ import { CreateTransactionUseCase } from "@/application/use-cases/transaction/cr
 import { GetTransactionByIdUseCase } from "@/application/use-cases/transaction/get-transaction-by-id.use-case.js";
 import { GetCustomerTransactionsUseCase } from "@/application/use-cases/transaction/get-customer-transactions.use-case.js";
 import { GetWalletByIdUseCase } from "@/application/use-cases/wallet/get-wallet-by-id.use-case.js";
+import { PayWithLinkUseCase } from "@/application/use-cases/payment-link/pay-with-link.use-case.js";
+import { PrismaPaymentLinkRepository } from "../database/prisma/repositories/prisma-payment-link.repository.js";
+import { PrismaPaymentUnitOfWork } from "../database/prisma/unit-of-work/payment.unit-of-work.js";
+import { CreatePaymentLinkUseCase } from "@/application/use-cases/payment-link/create-payment-link.use-case.js";
+import { GetPaymentLinkDetailsUseCase } from "@/application/use-cases/payment-link/get-payment-link-details.use-case.js";
 
 const customerRepository = new PrismaCustomerRepository();
 const merchantRepository = new PrismaMerchantRepository();
 const walletRepository = new PrismaWalletRepository();
-const transactionRepository = new PrismaTransactionRepository()
+const transactionRepository = new PrismaTransactionRepository();
+const paymentLinkRepository = new PrismaPaymentLinkRepository();
+const paymentUnitOfWork = new PrismaPaymentUnitOfWork();
 
 export const container = {
     registerCustomer: new RegisterCustomerUseCase(customerRepository),
@@ -57,4 +64,16 @@ export const container = {
     ),
     getTransactionById: new GetTransactionByIdUseCase(transactionRepository),
     getCustomerTransactions: new GetCustomerTransactionsUseCase(transactionRepository),
+
+    createPaymentLink: new CreatePaymentLinkUseCase(paymentLinkRepository, merchantRepository),
+    getPaymentLinkDetails: new GetPaymentLinkDetailsUseCase(paymentLinkRepository, merchantRepository),
+    payWithLink: new PayWithLinkUseCase(
+        paymentLinkRepository,
+        customerRepository,
+        merchantRepository,
+        walletRepository,
+        transactionRepository,
+        authorizationService,
+        paymentUnitOfWork
+    )
 } as const
