@@ -2,6 +2,7 @@ import { DomainError } from "@/domain/errors/domain.error.js";
 import { InsufficientFundsError } from "@/domain/errors/insufficient-funds.error.js";
 import { InvalidArgumentError } from "@/domain/errors/invalid-argument.error.js";
 import { NotFoundError } from "@/domain/errors/not-found.error.js";
+import { PaymentLinkAlreadyUsedError, PaymentLinkExpiredError, PaymentLinkInvalidError } from "@/domain/errors/payment-link.error.js";
 import { UnauthorizedError } from "@/domain/errors/unauthorized.error.js";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { ZodError } from "zod";
@@ -41,7 +42,6 @@ export function errorHandler(error: unknown, request: FastifyRequest, reply: Fas
             code: 'VALIDATION_ERROR',
             message: 'Validation failed',
             issues: validationError.validation.map((e) => ({
-                // Junta o contexto (ex: "params") com o caminho (ex: "/id") para ficar amigável
                 field: `${validationError.validationContext}${e.instancePath}`, 
                 message: e.message,
             }))
@@ -84,6 +84,34 @@ export function errorHandler(error: unknown, request: FastifyRequest, reply: Fas
             message: error.message
         });
         return;
+    }
+
+
+    if (error instanceof PaymentLinkExpiredError) {
+        reply.status(410).send({
+            status: 'error',
+            code: error.code,
+            message: error.message,
+        })
+        return
+    }
+
+    if (error instanceof PaymentLinkAlreadyUsedError) {
+        reply.status(409).send({
+            status: 'error',
+            code: error.code,
+            message: error.message,
+        })
+        return
+    }
+
+    if (error instanceof PaymentLinkInvalidError) {
+        reply.status(404).send({
+            status: 'error',
+            code: error.code,
+            message: error.message,
+        })
+        return
     }
 
     if(error instanceof DomainError){
