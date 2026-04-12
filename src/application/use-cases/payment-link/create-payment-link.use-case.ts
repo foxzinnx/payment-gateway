@@ -13,9 +13,9 @@ export class CreatePaymentLinkUseCase {
     ){}
 
     async execute(merchantId: string, input: CreatePaymentLinkInputDTO): Promise<PaymentLinkOutputDTO>{
-        const merchant = await this.merchantRepository.findById(
-            new UniqueEntityId(merchantId)
-        );
+        const merchantIdVO = new UniqueEntityId(merchantId);
+        
+        const merchant = await this.merchantRepository.findById(merchantIdVO);
         if(!merchant) throw new NotFoundError('Merchant');
 
         if(!merchant.isActive){
@@ -23,7 +23,7 @@ export class CreatePaymentLinkUseCase {
         }
 
         const paymentLink = PaymentLink.create({
-            merchantId: new UniqueEntityId(merchantId),
+            merchantId: merchantIdVO,
             amountInCents: input.amountInCents,
             currency: input.currency,
             description: input.description
@@ -31,22 +31,6 @@ export class CreatePaymentLinkUseCase {
 
         await this.paymentLinkRepository.save(paymentLink);
 
-        return this.toOutput(paymentLink);
-    }
-
-    private toOutput(paymentLink: PaymentLink): PaymentLinkOutputDTO {
-        return {
-            id: paymentLink.id.value,
-            code: paymentLink.code,
-            merchantId: paymentLink.merchantId.value,
-            amountInCents: paymentLink.amount.amountInCents,
-            amountFormatted: paymentLink.amount.formatted,
-            currency: paymentLink.currency,
-            description: paymentLink.description,
-            status: paymentLink.status,
-            expiresAt: paymentLink.expiresAt,
-            usedAt: paymentLink.usedAt,
-            createdAt: paymentLink.createdAt,
-        }
+        return paymentLink.toOutputDTO();
     }
 }

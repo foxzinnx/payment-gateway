@@ -1,3 +1,4 @@
+import type { PaymentLinkDetailsOutputDTO, PaymentLinkOutputDTO } from "@/application/dtos/payment-link.dto.js";
 import { PaymentLinkAlreadyUsedError, PaymentLinkAmountMustBePositiveError, PaymentLinkExpiredError } from "../errors/payment-link.error.js";
 import { type Currency, Money } from "../value-objects/money.vo.js";
 import type { UniqueEntityId } from "../value-objects/unique-entity-id.vo.js";
@@ -87,21 +88,49 @@ export class PaymentLink extends Entity<PaymentLinkProps>{
         return this._props.status === 'EXPIRED' || new Date() > this._props.expiresAt
     }
 
-    validate(): void {
+    validateForUse(): void {
         if(this.isUsed) throw new PaymentLinkAlreadyUsedError()
         if(this.isExpired) throw new PaymentLinkExpiredError()
     }
 
     markAsUsed(): void {
-        this.validate();
-        this._props.status === 'USED';
+        this.validateForUse();
+        this._props.status = 'USED';
         this._props.usedAt = new Date();
         this._props.updatedAt = new Date();
     }
 
     markAsExpired(): void {
-        if(this._props.status === 'USED') return;
+        if(this.isUsed) return;
         this._props.status = 'EXPIRED';
         this._props.updatedAt = new Date();
+    }
+
+    toOutputDTO(): PaymentLinkOutputDTO {
+        return {
+            id: this.id.value,
+            code: this.code,
+            merchantId: this.merchantId.value,
+            amountInCents: this.amount.amountInCents,
+            amountFormatted: this.amount.formatted,
+            currency: this.currency,
+            description: this.description,
+            status: this.status,
+            expiresAt: this.expiresAt,
+            usedAt: this.usedAt,
+            createdAt: this.createdAt,
+        }
+    }
+
+    toDetailsDTO(merchantTradeName: string): PaymentLinkDetailsOutputDTO {
+        return {
+            code: this.code,
+            merchantName: merchantTradeName,
+            amountInCents: this.amount.amountInCents,
+            amountFormatted: this.amount.formatted,
+            currency: this.currency,
+            description: this.description,
+            expiresAt: this.expiresAt
+        }
     }
 }
