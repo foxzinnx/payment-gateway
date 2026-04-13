@@ -21,7 +21,7 @@ export class CreateTransactionUseCase {
         if(input.idempotencyKey){
             const existing = await this.transactionRepository.findByIdempotencyKey(input.idempotencyKey);
             if(existing){
-                return this.toOutput(existing);
+                return existing.toOutputDTO();
             }
         }
 
@@ -67,7 +67,7 @@ export class CreateTransactionUseCase {
         if(!authResult.authorized){
             transaction.fail(authResult.reason);
             await this.transactionRepository.save(transaction);
-            return this.toOutput(transaction);
+            return transaction.toOutputDTO();
         }
 
         customerWallet.debit(transaction.amount);
@@ -78,22 +78,6 @@ export class CreateTransactionUseCase {
         await this.walletRepository.update(customerWallet);
         await this.walletRepository.update(merchantWallet);
 
-        return this.toOutput(transaction);
-    }
-
-    private toOutput(transaction: Transaction): TransactionOutputDTO {
-        return {
-            id: transaction.id.value,
-            customerId: transaction.customerId.value,
-            merchantId: transaction.merchantId.value,
-            amountInCents: transaction.amount.amountInCents,
-            amountFormatted: transaction.amount.formatted,
-            currency: transaction.currency,
-            status: transaction.status,
-            description: transaction.description,
-            denialReason: transaction.denialReason,
-            createdAt: transaction.createdAt,
-            updatedAt: transaction.updatedAt,
-        }
+        return transaction.toOutputDTO();
     }
 }

@@ -16,22 +16,6 @@ export class GetTransactionByIdUseCase {
             throw new NotFoundError('Transaction')
         }
 
-        return this.toOutput(transaction);
-    }
-
-    private toOutput(transaction: Transaction): TransactionOutputDTO {
-        return {
-        id: transaction.id.value,
-        customerId: transaction.customerId.value,
-        merchantId: transaction.merchantId.value,
-        amountInCents: transaction.amount.amountInCents,
-        amountFormatted: transaction.amount.formatted,
-        currency: transaction.currency,
-        status: transaction.status,
-        description: transaction.description,
-        denialReason: transaction.denialReason,
-        createdAt: transaction.createdAt,
-        updatedAt: transaction.updatedAt,
-        }
+        return transaction.toOutputDTO();
     }
 }

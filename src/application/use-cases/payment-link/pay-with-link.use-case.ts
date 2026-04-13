@@ -29,7 +29,7 @@ export class PayWithLinkUseCase {
     async execute(customerId: string, input: PayWithLinkInputDTO): Promise<TransactionOutputDTO>{
         if(input.idempotencyKey){
             const existing = await this.transactionRepository.findByIdempotencyKey(input.idempotencyKey);
-            if(existing) return this.toOutput(existing)
+            if(existing) return existing.toOutputDTO();
         }
         const normalizedCode = input.code.toUpperCase().trim();
         const customerIdVO = new UniqueEntityId(customerId);
@@ -69,7 +69,7 @@ export class PayWithLinkUseCase {
         if(!authResult.authorized){
             transaction.fail(authResult.reason);
             await this.transactionRepository.save(transaction);
-            return this.toOutput(transaction);
+            return transaction.toOutputDTO();
         }
 
         customerWallet.debit(transaction.amount);
@@ -84,22 +84,6 @@ export class PayWithLinkUseCase {
             paymentLink
         })
 
-        return this.toOutput(transaction);
-    }
-
-    private toOutput(transaction: Transaction): TransactionOutputDTO {
-        return {
-            id: transaction.id.value,
-            customerId: transaction.customerId.value,
-            merchantId: transaction.merchantId.value,
-            amountInCents: transaction.amount.amountInCents,
-            amountFormatted: transaction.amount.formatted,
-            currency: transaction.currency,
-            status: transaction.status,
-            description: transaction.description,
-            denialReason: transaction.denialReason,
-            createdAt: transaction.createdAt,
-            updatedAt: transaction.updatedAt,
-        }
+        return transaction.toOutputDTO();
     }
 }

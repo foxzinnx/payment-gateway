@@ -35,18 +35,6 @@ export class UpdateCustomerUseCase {
 
         await this.customerRepository.update(customer);
         
-        return this.toOutput(customer);
-    }
-
-    private toOutput(customer: Customer): CustomerOutputDTO{
-        return {
-            id: customer.id.value,
-            name: customer.name,
-            email: customer.email.value,
-            cpf: customer.cpf.formatted,
-            phone: customer.phone,
-            createdAt: customer.createdAt,
-            updatedAt: customer.updatedAt,
-        }
+        return customer.toOutputDTO();
     }
 }

@@ -1,3 +1,4 @@
+import type { TransactionOutputDTO } from "@/application/dtos/transaction.dto.js";
 import { InvalidArgumentError } from "../errors/invalid-argument.error.js";
 import { TransactionAmountMustBePositiveError } from "../errors/transaction-amount-must-be-positive.error.js";
 import { Money, type Currency } from "../value-objects/money.vo.js";
@@ -93,5 +94,21 @@ export class Transaction extends Entity<TransactionProps>{
         this._props.status = 'FAILED';
         this._props.denialReason = reason;
         this._props.updatedAt = new Date();
+    }
+
+    toOutputDTO(): TransactionOutputDTO {
+        return {
+            id: this.id.value,
+            customerId: this.customerId.value,
+            merchantId: this.merchantId.value,
+            amountInCents: this.amount.amountInCents,
+            amountFormatted: this.amount.formatted,
+            currency: this.currency,
+            status: this.status,
+            description: this.description,
+            denialReason: this.denialReason,
+            createdAt: this.createdAt,
+            updatedAt: this.updatedAt,
+        }
     }
 }

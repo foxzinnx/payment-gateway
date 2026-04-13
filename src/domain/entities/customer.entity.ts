@@ -1,3 +1,4 @@
+import type { CustomerOutputDTO } from "@/application/dtos/customer.dto.js";
 import { InvalidArgumentError } from "../errors/invalid-argument.error.js";
 import { CPF } from "../value-objects/cpf.vo.js";
 import { Email } from "../value-objects/email.vo.js";
@@ -90,6 +91,18 @@ export class Customer extends Entity<CustomerProps>{
         }
         if (name.trim().length > 100) {
             throw new InvalidArgumentError('Customer name must have at most 100 characters')
+        }
+    }
+
+    toOutputDTO(): CustomerOutputDTO {
+        return {
+            id: this.id.value,
+            name: this.name,
+            email: this.email.value,
+            cpf: this.cpf.formatted,
+            phone: this.phone,
+            createdAt: this.createdAt,
+            updatedAt: this.updatedAt,
         }
     }
 }

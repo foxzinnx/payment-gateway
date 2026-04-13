@@ -31,19 +31,6 @@ export class UpdateMerchantUseCase{
 
         await this.merchantRepository.update(merchant);
 
-        return this.toOutput(merchant);
-    }
-
-    private toOutput(merchant: Merchant): MerchantOutputDTO {
-        return {
-            id: merchant.id.value,
-            name: merchant.name,
-            tradeName: merchant.tradeName,
-            email: merchant.email.value,
-            cnpj: merchant.cnpj.formatted,
-            status: merchant.status,
-            createdAt: merchant.createdAt,
-            updatedAt: merchant.updatedAt,
-        }
+        return merchant.toOutputDTO();
     }
 }

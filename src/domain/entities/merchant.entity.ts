@@ -1,3 +1,4 @@
+import type { MerchantOutputDTO } from "@/application/dtos/merchant.dto.js";
 import { InvalidArgumentError } from "../errors/invalid-argument.error.js";
 import { CNPJ } from "../value-objects/cnpj.vo.js";
 import { Email } from "../value-objects/email.vo.js";
@@ -131,6 +132,19 @@ export class Merchant extends Entity<MerchantProps>{
         }
         if(name.trim().length > 100){
             throw new InvalidArgumentError('Name must have at most 100 characters');
+        }
+    }
+
+    toOutputDTO(): MerchantOutputDTO {
+        return {
+            id: this.id.value,
+            name: this.name,
+            tradeName: this.tradeName,
+            email: this.email.value,
+            cnpj: this.cnpj.formatted,
+            status: this.status,
+            createdAt: this.createdAt,
+            updatedAt: this.updatedAt,
         }
     }
 }
