@@ -65,7 +65,7 @@ export const container = {
     getTransactionById: new GetTransactionByIdUseCase(transactionRepository),
     getCustomerTransactions: new GetCustomerTransactionsUseCase(transactionRepository),
 
-    createPaymentLink: new CreatePaymentLinkUseCase(paymentLinkRepository, merchantRepository),
+    createPaymentLink: new CreatePaymentLinkUseCase(paymentLinkRepository, merchantRepository, walletRepository),
     getPaymentLinkDetails: new GetPaymentLinkDetailsUseCase(paymentLinkRepository, merchantRepository),
     payWithLink: new PayWithLinkUseCase(
         paymentLinkRepository,

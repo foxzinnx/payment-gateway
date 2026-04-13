@@ -7,6 +7,7 @@ import { authRoutes } from "./presentation/routes/auth.routes.js";
 import { transactionRoutes } from "./presentation/routes/transaction.routes.js";
 import swagger from "@fastify/swagger";
 import scalarApiReference from "@scalar/fastify-api-reference"; 
+import { paymentLinkRoutes } from "./presentation/routes/payment-link.routes.js";
 
 export function buildApp(){
     const app = fastify({ 
@@ -60,6 +61,7 @@ export function buildApp(){
     app.register(merchantRoutes, { prefix: '/api/v1' });
     app.register(walletRoutes, { prefix: '/api/v1' });
     app.register(transactionRoutes, { prefix: '/api/v1' })
+    app.register(paymentLinkRoutes, { prefix: '/api/v1' });
 
     app.get('/health', async () => ({ status: 'ok' }));
 
