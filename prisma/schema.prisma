@@ -87,10 +87,34 @@ model PaymentLink {
     @@map("payment_links")
 }
 
+model Deposit {
+    id            String        @id @default(uuid())
+    customerId    String        @map("customer_id")
+    walletId      String        @map("wallet_id")
+    amountInCents Int           @map("amount_in_cents")
+    currency      String        @default("BRL")
+    status        DepositStatus @default(PENDING)
+    method        DepositMethod @default(PIX)
+    createdAt     DateTime      @default(now()) @map("created_at")
+    updatedAt     DateTime      @updatedAt @map("updated_at")
+}
+
 enum PaymentLinkStatus {
     ACTIVE
     USED
     EXPIRED
+}
+
+enum DepositStatus {
+    PENDING
+    COMPLETED
+    FAILED
+}
+
+enum DepositMethod {
+    PIX
+    TED
+    BOLETO
 }
 
 enum TransactionStatus {
