@@ -1,3 +1,4 @@
+import type { DepositOutputDTO } from "@/application/dtos/deposit.dto.js";
 import { DepositAmountMustBePositiveError } from "../errors/deposit-amount-must-be-positive.error.js";
 import { InvalidArgumentError } from "../errors/invalid-argument.error.js";
 import { Money, type Currency } from "../value-objects/money.vo.js";
@@ -101,17 +102,4 @@ export class Deposit extends Entity<DepositProps>{
             updatedAt: this._props.updatedAt
         }
     }
-}
-
-export interface DepositOutputDTO {
-    id: string;
-    customerId: string;
-    walletId: string;
-    amountInCents: number;
-    amountFormatted: string;
-    currency: Currency;
-    status: DepositStatus;
-    method: DepositMethod;
-    createdAt: Date;
-    updatedAt: Date;
 }
