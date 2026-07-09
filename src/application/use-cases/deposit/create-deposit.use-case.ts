@@ -6,7 +6,7 @@ import type { DepositUnitOfWork } from "@/domain/repositories/unit-of-work.js";
 import type { WalletRepository } from "@/domain/repositories/wallet.repository.js";
 import { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
 
-export class CreditDepositUseCase {
+export class CreateDepositUseCase {
     constructor(
         private readonly depositRepository: DepositRepository,
         private readonly walletRepository: WalletRepository,
