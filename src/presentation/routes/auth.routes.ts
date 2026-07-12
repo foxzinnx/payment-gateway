@@ -82,6 +82,18 @@ const unauthorizedResponse = {
 
 export async function authRoutes(app: FastifyInstance): Promise<void> {
     app.post('/auth/customer/register', {
+        config: {
+            rateLimit: {
+                max: 5,
+                timeWindow: '1 hour',
+                errorResponseBuilder: () => ({
+                    status: 'error',
+                    code: 'RATE_LIMIT_EXCEEDED',
+                    message: 'Too many registration attempts. Please try again in 1 hour'
+                })
+            }
+        },
+
         schema: {
             tags: ['Customer Auth Routes'],
             summary: 'Register a customer',
@@ -144,6 +156,19 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     }, controller.registerCustomer.bind(controller));
 
     app.post('/auth/customer/login', {
+        config: {
+            rateLimit: {
+                max: 10,
+                timeWindow: '15 minutes',
+                errorResponseBuilder: () => ({
+                    status: 'error',
+                    code: 'RATE_LIMIT_EXCEEDED',
+                    message: 'Too many login attempts. Please try again in 15 minutes.'
+                })
+            }
+        },
+
+
         schema: {
             tags: ['Customer Auth Routes'],
             summary: 'Authenticate customer',
@@ -183,6 +208,18 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     }, controller.loginCustomer.bind(controller));
 
     app.post('/auth/customer/refresh', {
+        config: {
+            rateLimit: {
+                max: 20,
+                timeWindow: '15 minutes',
+                errorResponseBuilder: () => ({
+                    status: 'error',
+                    code: 'RATE_LIMIT_EXCEEDED',
+                    message: 'Too many refresh attempts. Please try again in 15 minutes.'
+                })
+            }
+        },
+
         schema: {
             tags: ['Customer Auth Routes'],
             summary: 'Refresh customer tokens',
@@ -232,6 +269,18 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     }, controller.refreshCustomer.bind(controller));
 
     app.post('/auth/merchant/register', {
+        config: {
+            rateLimit: {
+                max: 5,
+                timeWindow: '1 hour',
+                errorResponseBuilder: () => ({
+                    status: 'error',
+                    code: 'RATE_LIMIT_EXCEEDED',
+                    message: 'Too many registration attempts. Please try again in 1 hour'
+                })
+            }
+        },
+        
         schema: {
             tags: ['Merchant Auth Routes'],
             summary: 'Register a merchant',
@@ -312,6 +361,18 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     }, controller.registerMerchant.bind(controller));
 
     app.post('/auth/merchant/login', {
+        config: {
+            rateLimit: {
+                max: 10,
+                timeWindow: '15 minutes',
+                errorResponseBuilder: () => ({
+                    status: 'error',
+                    code: 'RATE_LIMIT_EXCEEDED',
+                    message: 'Too many login attempts. Please try again in 15 minutes.'
+                })
+            }
+        },
+
         schema: {
             tags: ['Merchant Auth Routes'],
             summary: 'Authenticate merchant',
@@ -367,6 +428,18 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     }, controller.loginMerchant.bind(controller));
 
     app.post('/auth/merchant/refresh', {
+        config: {
+            rateLimit: {
+                max: 20,
+                timeWindow: '15 minutes',
+                errorResponseBuilder: () => ({
+                    status: 'error',
+                    code: 'RATE_LIMIT_EXCEEDED',
+                    message: 'Too many refresh attempts. Please try again in 15 minutes.'
+                })
+            }
+        },
+        
         schema: {
             tags: ['Merchant Auth Routes'],
             summary: 'Refresh merchant tokens',
