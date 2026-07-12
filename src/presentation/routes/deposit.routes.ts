@@ -24,7 +24,7 @@ const depositData = {
             type: 'string',
             enum: ['PIX', 'TED', 'BOLETO'],
             description: 'Simulated deposit method.',
-            example: 'BRL'
+            example: 'PIX'
         },
         createdAt: { type: 'string', format: 'date-time', example: '2026-04-02T17:46:36.457Z' },
         updatedAt: { type: 'string', format: 'date-time', example: '2026-04-02T17:46:36.457Z' },

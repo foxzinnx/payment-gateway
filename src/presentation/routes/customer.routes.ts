@@ -29,42 +29,18 @@ const notFoundResponse = {
     }
 }
 
-const unauthorizedMissingTokenResponse = {
-    description: 'Missing or invalid authorization token',
-    type: 'object',
-    properties: {
-        status: { type: 'string', example: 'error' },
-        code: { type: 'string', example: 'UNAUTHORIZED' },
-        message: { type: 'string', example: 'Missing authorization token' }
-    }
-}
-
 export async function customerRoutes(app: FastifyInstance): Promise<void> {
-
-    app.get('/customers/:id', {
+    app.get('/customers/me', {
         schema: {
             tags: ['Customer Routes'],
-            summary: 'Get customer by ID',
-            description: 'Returns a customer\'s public profile data by ID. Any authenticated user can view customer profiles. Sensitive data such as password and refresh token are never exposed.',
-
-            params: {
-                type: 'object',
-                properties: {
-                    id: {
-                        type: 'string',
-                        format: 'uuid',
-                        description: 'UUID of the customer to retrieve.',
-                        example: 'd0c05188-c5a9-4cc6-ab8e-6272b40e5f6c'
-                    }
-                },
-                required: ['id']
-            },
+            summary: 'Get My Profile',
+            description: 'Returns the authenticated customer own profile data. The customer is identified by the JWT token. No parameters needed. Only customers can access this route.',
 
             security: [{ bearerAuth: [] }],
 
             response: {
                 200: {
-                    description: 'Customer found successfully',
+                    description: 'Customer profile retrieved successfully',
                     type: 'object',
                     properties: {
                         status: { type: 'string', enum: ['success'], example: 'success' },
@@ -72,12 +48,20 @@ export async function customerRoutes(app: FastifyInstance): Promise<void> {
                     },
                     required: ['status', 'data']
                 },
-                401: unauthorizedMissingTokenResponse,
+                401: {
+                    description: 'Missing token or non-customer token used',
+                    type: 'object',
+                    properties: {
+                        status: { type: 'string', example: 'error' },
+                        code: { type: 'string', example: 'UNAUTHORIZED' },
+                        message: { type: 'string', example: 'Only customers can access this resource' }
+                    }
+                },
                 404: notFoundResponse
             }
         },
-        preHandler: authenticate
-    }, controller.getById.bind(controller));
+        preHandler: [authenticate, authorizeCustomer]
+    }, controller.getMyProfile.bind(controller));
 
     app.patch('/customers/:id', {
         schema: {
