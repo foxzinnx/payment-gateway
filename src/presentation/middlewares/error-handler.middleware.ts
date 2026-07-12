@@ -4,7 +4,7 @@ import { InvalidArgumentError } from "@/domain/errors/invalid-argument.error.js"
 import { NotFoundError } from "@/domain/errors/not-found.error.js";
 import { PaymentLinkAlreadyUsedError, PaymentLinkExpiredError, PaymentLinkInvalidError } from "@/domain/errors/payment-link.error.js";
 import { UnauthorizedError } from "@/domain/errors/unauthorized.error.js";
-import type { FastifyReply, FastifyRequest } from "fastify";
+import type { FastifyError, FastifyReply, FastifyRequest } from "fastify";
 import { ZodError } from "zod";
 
 interface FastifyValidationError extends Error {
@@ -47,6 +47,11 @@ export function errorHandler(error: unknown, request: FastifyRequest, reply: Fas
             }))
         });
 
+        return;
+    }
+
+    if((error as FastifyError).statusCode === 429){
+        reply.status(429).send(error);
         return;
     }
 
