@@ -18,6 +18,7 @@
   "dependencies": {
     "@fastify/cors": "^11.2.0",
     "@fastify/helmet": "^13.0.2",
+    "@fastify/rate-limit": "^11.1.0",
     "@fastify/swagger": "^9.7.0",
     "@prisma/client": "^6.19.2",
     "@scalar/fastify-api-reference": "^1.49.7",

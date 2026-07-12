@@ -9,6 +9,7 @@ import swagger from "@fastify/swagger";
 import scalarApiReference from "@scalar/fastify-api-reference"; 
 import { paymentLinkRoutes } from "./presentation/routes/payment-link.routes.js";
 import { depositRoutes } from "./presentation/routes/deposit.routes.js";
+import rateLimit from "@fastify/rate-limit";
 
 export function buildApp(){
     const app = fastify({ 
@@ -19,6 +20,37 @@ export function buildApp(){
             }
         }
     });
+
+    app.register(rateLimit, {
+        global: true,
+        max: 100,
+        timeWindow: '1 minute',
+        keyGenerator: (request) => {
+            const auth = request.headers.authorization;
+            if(auth?.startsWith('Bearer ')){
+                try {
+                    const token = auth.split(' ')[1];
+                    if(!token) return request.ip;
+
+                    const payloadPart = token.split('.')[1];
+                    if(!payloadPart) return request.ip;
+
+                    const payload = JSON.parse(
+                        Buffer.from(payloadPart, 'base64').toString()
+                    )
+                    return payload.sub ?? request.ip
+                } catch (error) {
+                    return request.ip
+                }
+            }
+            return request.ip
+        },
+        errorResponseBuilder: () => ({
+            status: 'error',
+            code: 'RATE_LIMIT_EXCEEDED',
+            message: 'Too many requests. Please try again later.'
+        })
+    })
 
     app.register(swagger, {
         openapi: {
