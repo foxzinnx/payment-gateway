@@ -44,6 +44,18 @@ const unauthorizedResponse = {
 
 export async function depositRoutes(app: FastifyInstance): Promise<void>{
     app.post('/deposits', {
+        config: {
+            rateLimit: {
+                max: 10,
+                timeWindow: '15 minutes',
+                errorResponseBuilder: () => ({
+                    status: 'error',
+                    code: 'RATE_LIMIT_EXCEEDED',
+                    message: 'Too many deposit attempts. Please try again in 15 minutes.'
+                })
+            }
+        },
+
         schema: {
             tags: ['Deposit Routes'],
             summary: 'Create Deposit',
