@@ -171,12 +171,12 @@ export async function transactionRoutes(app: FastifyInstance): Promise<void> {
                     required: ['status', 'data']
                 },
                 401: {
-                    description: 'Missing or invalid authorization token',
+                    description: 'Missing token or user is not part of this transaction',
                     type: 'object',
                     properties: {
                         status: { type: 'string', example: 'error' },
                         code: { type: 'string', example: 'UNAUTHORIZED' },
-                        message: { type: 'string', example: 'Missing authorization token' }
+                        message: { type: 'string', example: 'You can only view transactions you are part of' }
                     }
                 },
                 404: notFoundResponse
