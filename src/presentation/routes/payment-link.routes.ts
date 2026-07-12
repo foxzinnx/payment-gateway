@@ -179,6 +179,18 @@ const expiredResponse = {
 export async function paymentLinkRoutes(app: FastifyInstance): Promise<void> {
 
     app.post('/payment-links', {
+        config: {
+            rateLimit: {
+                max: 30,
+                timeWindow: '15 minutes',
+                errorResponseBuilder: () => ({
+                    status: 'error',
+                    code: 'RATE_LIMIT_EXCEEDED',
+                    message: 'Too many payment link creation attempts. Please try again in 15 minutes.'
+                })
+            }
+        },
+
         schema: {
             tags: ['Payment Link Routes'],
             summary: 'Create payment link',
@@ -324,6 +336,18 @@ export async function paymentLinkRoutes(app: FastifyInstance): Promise<void> {
     }, controller.getDetails.bind(controller));
 
     app.post('/payment-links/pay', {
+        config: {
+            rateLimit: {
+                max: 20,
+                timeWindow: '5 minutes',
+                errorResponseBuilder: () => ({
+                    status: 'error',
+                    code: 'RATE_LIMIT_EXCEEDED',
+                    message: 'Too many payment attempts. Please try again in 5 minutes.'
+                })
+            }
+        },
+
         schema: {
             tags: ['Payment Link Routes'],
             summary: 'Pay via payment link',
