@@ -69,6 +69,18 @@ const notFoundResponse = {
 export async function transactionRoutes(app: FastifyInstance): Promise<void> {
 
     app.post('/transactions', {
+        config: {
+            rateLimit: {
+                max: 20,
+                timeWindow: '5 minutes',
+                errorResponseBuilder: () => ({
+                    status: 'error',
+                    code: 'RATE_LIMIT_EXCEEDED',
+                    message: 'Too many transactions attempts. Please try again in 5 minutes.'
+                })
+            }
+        },
+
         schema: {
             tags: ['Transaction Routes'],
             summary: 'Create transaction',
