@@ -4,12 +4,12 @@ import { container } from "@/infra/container/index.js";
 import { UnauthorizedError } from "@/domain/errors/unauthorized.error.js";
 
 export class CustomerController {
-    async getById(request: FastifyRequest, reply: FastifyReply): Promise<void>{
-        const { id } = customerIdSchema.parse(request.params);
+    async getMyProfile(request: FastifyRequest, reply: FastifyReply): Promise<void>{
+        const customerId = request.user.sub;
 
-        const output = await container.getCustomerById.execute(id);
+        const output = await container.getMyProfile.execute(customerId);
 
-        reply.status(200).send({ status: 'success', data: output});
+        reply.status(200).send({ status: 'success', data: output });
     }
 
     async update(request: FastifyRequest, reply: FastifyReply): Promise<void>{
