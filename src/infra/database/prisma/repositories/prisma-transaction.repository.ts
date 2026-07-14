@@ -1,4 +1,4 @@
-import type { Transaction } from "@/domain/entities/transaction.entity.js";
+import { Transaction } from "@/domain/entities/transaction.entity.js";
 import type { TransactionRepository } from "@/domain/repositories/transaction.repository.js";
 import type { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
 import { prisma } from "../prisma.client.js";
@@ -21,6 +21,15 @@ export class PrismaTransactionRepository implements TransactionRepository{
             orderBy: { createdAt: 'desc' },
             take: 20,
         })
+        return raws.map(TransactionMapper.toDomain)
+    }
+
+    async findAllByMerchantId(merchantId: UniqueEntityId): Promise<Transaction[]> {
+        const raws = await prisma.transaction.findMany({
+            where: { id: merchantId.value },
+            orderBy: { createdAt: 'asc' },
+            take: 20
+        });
         return raws.map(TransactionMapper.toDomain)
     }
 
