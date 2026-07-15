@@ -35,4 +35,11 @@ export class PaymentLinkController {
 
         reply.status(status).send({ status: 'success', data: output });
     }
+
+    async listMine(request: FastifyRequest, reply: FastifyReply): Promise<void>{
+        const merchantId = request.user.sub;
+        const output = await container.getMerchantPaymentLinks.execute(merchantId);
+
+        reply.status(200).send({ status: 'success', data: output })
+    }
 }

@@ -33,6 +33,7 @@ import { CreateDepositUseCase } from "@/application/use-cases/deposit/create-dep
 import { GetCustomerDepositsUseCase } from "@/application/use-cases/deposit/get-customer-deposits.use-case.js";
 import { GetMyProfileUseCase } from "@/application/use-cases/customer/get-my-profile.use-case.js";
 import { GetMerchantTransactionsUseCase } from "@/application/use-cases/merchant/get-merchant-transactions.use-case.js";
+import { GetMerchantPaymentLinksUseCase } from "@/application/use-cases/payment-link/get-merchant-payment-links.use-case.js";
 
 const customerRepository = new PrismaCustomerRepository();
 const merchantRepository = new PrismaMerchantRepository();
@@ -85,6 +86,7 @@ export const container = {
         authorizationService,
         paymentUnitOfWork
     ),
+    getMerchantPaymentLinks: new GetMerchantPaymentLinksUseCase(paymentLinkRepository),
     createDeposit: new CreateDepositUseCase(
         depositRepository,
         walletRepository,
