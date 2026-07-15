@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { TransactionController } from "../controllers/transaction.controller.js";
 import { authenticate } from "../middlewares/authenticate.middleware.js";
-import { authorizeCustomer } from "../middlewares/authorize.middleware.js";
+import { authorizeCustomer, authorizeMerchant } from "../middlewares/authorize.middleware.js";
 import { container } from "@/infra/container/index.js";
 
 const controller = new TransactionController();
@@ -150,6 +150,70 @@ export async function transactionRoutes(app: FastifyInstance): Promise<void> {
         },
         preHandler: [authenticate, authorizeCustomer]
     }, controller.create.bind(controller));
+
+    app.get('/transactions/customer/me', {
+        schema: {
+            tags: ['Transaction Routes'],
+            summary: 'List my transactions as customer',
+            description: 'Returns the 20 most recent transactions made by the authenticated customer, ordered by creation date descending. Only customers can access this route.',
+
+            security: [{ bearerAuth: [] }],
+
+            response: {
+                200: {
+                    description: 'Customer transactions retrieved successfully',
+                    type: 'object',
+                    properties: {
+                        status: { type: 'string', enum: ['success'], example: 'success' },
+                        data: { type: 'array', items: transactionData }
+                    },
+                    required: ['status', 'data']
+                },
+                401: {
+                    description: 'Missing token or non-customer token used',
+                    type: 'object',
+                    properties: {
+                        status: { type: 'string', example: 'error' },
+                        code: { type: 'string', example: 'UNAUTHORIZED' },
+                        message: { type: 'string', example: 'Only customers can access this resource' }
+                    }
+                }
+            }
+        },
+        preHandler: [authenticate, authorizeCustomer]
+    }, controller.listMyAsCustomer.bind(controller))
+
+    app.get('/transactions/merchant/me', {
+        schema: {
+            tags: ['Transaction Routes'],
+            summary: 'List my transactions as merchant',
+            description: 'Returns the 20 most recent transactions made by the authenticated merchant, ordered by creation date descending. Only merchants can access this route.',
+
+            security: [{ bearerAuth: [] }],
+
+            response: {
+                200: {
+                    description: 'Merchant transactions retrieved successfully',
+                    type: 'object',
+                    properties: {
+                        status: { type: 'string', enum: ['success'], example: 'success' },
+                        data: { type: 'array', items: transactionData }
+                    },
+                    required: ['status', 'data']
+                },
+                401: {
+                    description: 'Missing token or non-merchant token used',
+                    type: 'object',
+                    properties: {
+                        status: { type: 'string', example: 'error' },
+                        code: { type: 'string', example: 'UNAUTHORIZED' },
+                        message: { type: 'string', example: 'Only merchants can access this resource' }
+                    }
+                }
+            }
+        },
+        preHandler: [authenticate, authorizeMerchant]
+    }, controller.listMyAsMerchant.bind(controller))
 
     app.get('/transactions/:id', {
         schema: {
