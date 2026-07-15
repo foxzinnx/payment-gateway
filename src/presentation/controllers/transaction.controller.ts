@@ -30,4 +30,18 @@ export class TransactionController {
 
         reply.status(200).send({ status: 'success', data: transaction });
     }
+
+    async listMyAsCustomer(request: FastifyRequest, reply: FastifyReply): Promise<void>{
+        const customerId = request.user.sub;
+        const output = await container.getCustomerTransactions.execute(customerId);
+
+        reply.status(200).send({ status: 'success', data: output })
+    }
+
+    async listMyAsMerchant(request: FastifyRequest, reply: FastifyReply): Promise<void>{
+        const merchantId = request.user.sub;
+        const output = await container.getMerchantTransactions.execute(merchantId);
+
+        reply.status(200).send({ status: 'success', data: output })
+    }
 }
