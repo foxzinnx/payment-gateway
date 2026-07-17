@@ -2,6 +2,7 @@ import type { FastifyReply, FastifyRequest } from "fastify";
 import { createTransactionSchema, transactionIdSchema } from "../schemas/transaction.schema.js";
 import { container } from "@/infra/container/index.js";
 import { UnauthorizedError } from "@/domain/errors/unauthorized.error.js";
+import { paginationSchema } from "../schemas/pagination.schema.js";
 
 export class TransactionController {
     async create(request: FastifyRequest, reply: FastifyReply): Promise<void> {
@@ -32,16 +33,20 @@ export class TransactionController {
     }
 
     async listMyAsCustomer(request: FastifyRequest, reply: FastifyReply): Promise<void>{
+        const { page, limit } = paginationSchema.parse(request.query);
         const customerId = request.user.sub;
-        const output = await container.getCustomerTransactions.execute(customerId);
 
-        reply.status(200).send({ status: 'success', data: output })
+        const output = await container.getCustomerTransactions.execute(customerId, { page, limit });
+
+        reply.status(200).send({ status: 'success', ...output })
     }
 
     async listMyAsMerchant(request: FastifyRequest, reply: FastifyReply): Promise<void>{
-        const merchantId = request.user.sub;
-        const output = await container.getMerchantTransactions.execute(merchantId);
+        const { page, limit } = paginationSchema.parse(request.query);
 
-        reply.status(200).send({ status: 'success', data: output })
+        const merchantId = request.user.sub;
+        const output = await container.getMerchantTransactions.execute(merchantId, { page, limit });
+
+        reply.status(200).send({ status: 'success', ...output })
     }
 }

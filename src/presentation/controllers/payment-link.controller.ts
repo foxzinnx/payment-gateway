@@ -2,6 +2,7 @@ import type { FastifyReply, FastifyRequest } from "fastify";
 import { createPaymentLinkSchema, paymentLinkCodeSchema, payWithLinkSchema } from "../schemas/payment-link.schema.js";
 import { container } from "@/infra/container/index.js";
 import { UnauthorizedError } from "@/domain/errors/unauthorized.error.js";
+import { paginationSchema } from "../schemas/pagination.schema.js";
 
 export class PaymentLinkController {
     async create(request: FastifyRequest, reply: FastifyReply): Promise<void>{
@@ -37,9 +38,11 @@ export class PaymentLinkController {
     }
 
     async listMine(request: FastifyRequest, reply: FastifyReply): Promise<void>{
+        const { page, limit } = paginationSchema.parse(request.query);
         const merchantId = request.user.sub;
-        const output = await container.getMerchantPaymentLinks.execute(merchantId);
 
-        reply.status(200).send({ status: 'success', data: output })
+        const output = await container.getMerchantPaymentLinks.execute(merchantId, { page, limit });
+
+        reply.status(200).send({ status: 'success', ...output })
     }
 }
