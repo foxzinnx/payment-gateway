@@ -99,6 +99,25 @@ model Deposit {
     updatedAt     DateTime      @updatedAt @map("updated_at")
 }
 
+model Refund {
+    id            String       @id @default(uuid())
+    transactionId String       @unique @map("transaction_id")
+    merchantId    String       @map("merchant_id")
+    customerId    String       @map("customer_id")
+    amountInCents Int          @map("amount_in_cents")
+    currency      String       @default("BRL")
+    reason        String?
+    status        RefundStatus @default(PENDING)
+    createdAt     DateTime     @default(now()) @map("created_at")
+    updatedAt     DateTime     @updatedAt @map("updated_at")
+}
+
+enum RefundStatus {
+    PENDING
+    COMPLETED
+    FAILED
+}
+
 enum PaymentLinkStatus {
     ACTIVE
     USED
@@ -121,6 +140,7 @@ enum TransactionStatus {
     PENDING
     APPROVED
     FAILED
+    REFUNDED
 }
 
 enum MerchantStatus {

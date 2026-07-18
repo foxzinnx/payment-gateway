@@ -4,8 +4,9 @@ import { TransactionAmountMustBePositiveError } from "../errors/transaction-amou
 import { Money, type Currency } from "../value-objects/money.vo.js";
 import type { UniqueEntityId } from "../value-objects/unique-entity-id.vo.js"
 import { Entity } from "./base/entity.base.js";
+import { TransactionNotRefundableError } from "../errors/transaction-not-refundable.error.js";
 
-export type TransactionStatus = 'PENDING' | 'APPROVED' | 'FAILED'
+export type TransactionStatus = 'PENDING' | 'APPROVED' | 'FAILED' | 'REFUNDED'
 
 interface TransactionProps {
     customerId: UniqueEntityId;
@@ -78,6 +79,8 @@ export class Transaction extends Entity<TransactionProps>{
     get isApproved(): boolean { return this._props.status === 'APPROVED' }
     get isFailed(): boolean { return this._props.status === 'FAILED' }
 
+    get isRefunded(): boolean { return this._props.status === 'REFUNDED' }
+
     approve(): void {
         if(!this.isPending){
             throw new InvalidArgumentError('Only pending transactions can be approved')
@@ -96,19 +99,27 @@ export class Transaction extends Entity<TransactionProps>{
         this._props.updatedAt = new Date();
     }
 
+    refund(): void {
+        if(!this.isApproved){
+            throw new TransactionNotRefundableError();
+        }
+        this._props.status = 'REFUNDED';
+        this._props.updatedAt = new Date();
+    }
+
     toOutputDTO(): TransactionOutputDTO {
         return {
             id: this.id.value,
-            customerId: this.customerId.value,
-            merchantId: this.merchantId.value,
-            amountInCents: this.amount.amountInCents,
-            amountFormatted: this.amount.formatted,
-            currency: this.currency,
-            status: this.status,
-            description: this.description,
-            denialReason: this.denialReason,
-            createdAt: this.createdAt,
-            updatedAt: this.updatedAt,
+            customerId: this._props.customerId.value,
+            merchantId: this._props.merchantId.value,
+            amountInCents: this._props.amount.amountInCents,
+            amountFormatted: this._props.amount.formatted,
+            currency: this._props.currency,
+            status: this._props.status,
+            description: this._props.description,
+            denialReason: this._props.denialReason,
+            createdAt: this._props.createdAt,
+            updatedAt: this._props.updatedAt,
         }
     }
 }
