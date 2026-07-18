@@ -24,8 +24,18 @@ export class Refund extends Entity<RefundProps>{
         super(props, id)
     }
 
-    static create(props: Omit<RefundProps, 'createdAt' | 'updatedAt' | 'status'>, id?: UniqueEntityId){
-        if(props.amount.amountInCents <= 0){
+    static create(
+        props:{
+            transactionId: UniqueEntityId;
+            merchantId: UniqueEntityId;
+            customerId: UniqueEntityId;
+            amountInCents: number;
+            currency: Currency;
+            reason?: string | undefined;
+        },
+        id?: UniqueEntityId
+    ){
+        if(props.amountInCents <= 0){
             throw new RefundAmountMustBePositiveError()
         }
         const now = new Date();
@@ -35,7 +45,7 @@ export class Refund extends Entity<RefundProps>{
                 transactionId: props.transactionId,
                 merchantId: props.merchantId,
                 customerId: props.customerId,
-                amount: Money.create(props.amount.amountInCents, props.currency),
+                amount: Money.create(props.amountInCents, props.currency),
                 currency: props.currency,
                 reason: props.reason?.trim() ?? null,
                 status: 'PENDING',

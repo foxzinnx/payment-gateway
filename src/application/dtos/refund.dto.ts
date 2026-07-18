@@ -1,6 +1,10 @@
 import type { RefundStatus } from "@/domain/entities/refund.entity.js"
 import type { Currency } from "@/domain/value-objects/money.vo.js"
 
+export interface CreateRefundInputDTO {
+    reason?: string | undefined
+}
+
 export interface RefundOutputDTO {
     id: string
     transactionId: string
