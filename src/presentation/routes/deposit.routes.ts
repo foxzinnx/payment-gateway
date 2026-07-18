@@ -5,6 +5,38 @@ import { authorizeCustomer } from "../middlewares/authorize.middleware.js";
 
 const controller = new DepositController();
 
+const paginationMeta = {
+    type: 'object',
+    properties: {
+        page: { type: 'integer', example: 1 },
+        limit: { type: 'integer', example: 20 },
+        total: { type: 'integer', example: 150 },
+        totalPages: { type: 'integer', example: 8 },
+    },
+    required: ['page', 'limit', 'total', 'totalPages']
+}
+
+const paginationQuerystring = {
+    type: 'object',
+    properties: {
+        page: {
+            type: 'integer',
+            minimum: 1,
+            default: 1,
+            description: 'Page number (starts at 1).',
+            example: 1
+        },
+        limit: {
+            type: 'integer',
+            minimum: 1,
+            maximum: 100,
+            default: 20,
+            description: 'Number of items per page. Maximum: 100.',
+            example: 20
+        }
+    }
+}
+
 const depositData = {
     type: 'object',
     properties: {
@@ -121,6 +153,8 @@ export async function depositRoutes(app: FastifyInstance): Promise<void>{
             summary: 'List my deposits',
             description: 'Returns the 20 most recent deposits of the authenticated customer, ordered by creation date descending. Only customers can access this route.',
 
+            querystring: paginationQuerystring,
+
             security: [{ bearerAuth: [] }],
 
             response: {
@@ -129,12 +163,10 @@ export async function depositRoutes(app: FastifyInstance): Promise<void>{
                     type: 'object',
                     properties: {
                         status: { type: 'string', enum: ['success'], example: 'success' },
-                        data: {
-                            type: 'array',
-                            items: depositData
-                        }
+                        data: { type: 'array', items: depositData },
+                        meta: paginationMeta
                     },
-                    required: ['status', 'data']
+                    required: ['status', 'data', 'meta']
                 },
                 401: unauthorizedResponse
             }

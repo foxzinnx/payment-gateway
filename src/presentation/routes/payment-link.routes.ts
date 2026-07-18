@@ -8,6 +8,38 @@ const controller = new PaymentLinkController();
 
 // ─── Shared response schemas ──────────────────────────────────────────────────
 
+const paginationMeta = {
+    type: 'object',
+    properties: {
+        page: { type: 'integer', example: 1 },
+        limit: { type: 'integer', example: 20 },
+        total: { type: 'integer', example: 150 },
+        totalPages: { type: 'integer', example: 8 },
+    },
+    required: ['page', 'limit', 'total', 'totalPages']
+}
+
+const paginationQuerystring = {
+    type: 'object',
+    properties: {
+        page: {
+            type: 'integer',
+            minimum: 1,
+            default: 1,
+            description: 'Page number (starts at 1).',
+            example: 1
+        },
+        limit: {
+            type: 'integer',
+            minimum: 1,
+            maximum: 100,
+            default: 20,
+            description: 'Number of items per page. Maximum: 100.',
+            example: 20
+        }
+    }
+}
+
 const paymentLinkData = {
     type: 'object',
     properties: {
@@ -399,4 +431,39 @@ export async function paymentLinkRoutes(app: FastifyInstance): Promise<void> {
         },
         preHandler: [authenticate, authorizeCustomer]
     }, controller.pay.bind(controller));
+
+    app.get('/payment-links/me', {
+        schema: {
+            tags: ['Payment Link Routes'],
+            summary: 'List my payment links',
+            description: 'Returns the 20 most recent payment links created by the authenticated merchant, ordered by creation date descending. Includes links with all statuses (ACTIVE, USED, EXPIRED). Only merchants can access this route.',
+
+            querystring: paginationQuerystring,
+
+            security: [{ bearerAuth: [] }],
+
+            response: {
+                200: {
+                    description: 'Merchant payment links retrieved successfully',
+                    type: 'object',
+                    properties: {
+                        status: { type: 'string', enum: ['success'], example: 'success' },
+                        data: { type: 'array', items: paymentLinkData },
+                        meta: paginationMeta
+                    },
+                    required: ['status', 'data', 'meta']
+                },
+                401: {
+                    description: 'Missing token or non-merchant token used',
+                    type: 'object',
+                    properties: {
+                        status: { type: 'string', example: 'error' },
+                        code: { type: 'string', example: 'UNAUTHORIZED' },
+                        message: { type: 'string', example: 'Only merchants can access this resource' }
+                    }
+                }
+            }
+        },
+        preHandler: [authenticate, authorizeMerchant]
+    }, controller.listMine.bind(controller))
 }

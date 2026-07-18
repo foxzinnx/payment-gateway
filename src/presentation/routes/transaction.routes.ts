@@ -6,6 +6,38 @@ import { container } from "@/infra/container/index.js";
 
 const controller = new TransactionController();
 
+const paginationMeta = {
+    type: 'object',
+    properties: {
+        page: { type: 'integer', example: 1 },
+        limit: { type: 'integer', example: 20 },
+        total: { type: 'integer', example: 150 },
+        totalPages: { type: 'integer', example: 8 },
+    },
+    required: ['page', 'limit', 'total', 'totalPages']
+}
+
+const paginationQuerystring = {
+    type: 'object',
+    properties: {
+        page: {
+            type: 'integer',
+            minimum: 1,
+            default: 1,
+            description: 'Page number (starts at 1).',
+            example: 1
+        },
+        limit: {
+            type: 'integer',
+            minimum: 1,
+            maximum: 100,
+            default: 20,
+            description: 'Number of items per page. Maximum: 100.',
+            example: 20
+        }
+    }
+}
+
 const transactionData = {
     type: 'object',
     properties: {
@@ -157,6 +189,8 @@ export async function transactionRoutes(app: FastifyInstance): Promise<void> {
             summary: 'List my transactions as customer',
             description: 'Returns the 20 most recent transactions made by the authenticated customer, ordered by creation date descending. Only customers can access this route.',
 
+            querystring: paginationQuerystring,
+
             security: [{ bearerAuth: [] }],
 
             response: {
@@ -165,9 +199,10 @@ export async function transactionRoutes(app: FastifyInstance): Promise<void> {
                     type: 'object',
                     properties: {
                         status: { type: 'string', enum: ['success'], example: 'success' },
-                        data: { type: 'array', items: transactionData }
+                        data: { type: 'array', items: transactionData },
+                        meta: paginationMeta
                     },
-                    required: ['status', 'data']
+                    required: ['status', 'data', 'meta']
                 },
                 401: {
                     description: 'Missing token or non-customer token used',
@@ -189,6 +224,8 @@ export async function transactionRoutes(app: FastifyInstance): Promise<void> {
             summary: 'List my transactions as merchant',
             description: 'Returns the 20 most recent transactions made by the authenticated merchant, ordered by creation date descending. Only merchants can access this route.',
 
+            querystring: paginationQuerystring,
+
             security: [{ bearerAuth: [] }],
 
             response: {
@@ -197,9 +234,10 @@ export async function transactionRoutes(app: FastifyInstance): Promise<void> {
                     type: 'object',
                     properties: {
                         status: { type: 'string', enum: ['success'], example: 'success' },
-                        data: { type: 'array', items: transactionData }
+                        data: { type: 'array', items: transactionData },
+                        meta: paginationMeta
                     },
-                    required: ['status', 'data']
+                    required: ['status', 'data', 'meta']
                 },
                 401: {
                     description: 'Missing token or non-merchant token used',
@@ -286,9 +324,5 @@ export async function transactionRoutes(app: FastifyInstance): Promise<void> {
             }
         },
         preHandler: [authenticate, authorizeCustomer]
-    }, async (request, reply) => {
-        const customerId = request.user.sub
-        const output = await container.getCustomerTransactions.execute(customerId)
-        reply.status(200).send({ status: 'success', data: output })
-    });
+    }, controller.listMyAsCustomer.bind(controller));
 }
