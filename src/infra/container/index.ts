@@ -34,6 +34,9 @@ import { GetCustomerDepositsUseCase } from "@/application/use-cases/deposit/get-
 import { GetMyProfileUseCase } from "@/application/use-cases/customer/get-my-profile.use-case.js";
 import { GetMerchantTransactionsUseCase } from "@/application/use-cases/merchant/get-merchant-transactions.use-case.js";
 import { GetMerchantPaymentLinksUseCase } from "@/application/use-cases/payment-link/get-merchant-payment-links.use-case.js";
+import { PrismaRefundRepository } from "../database/prisma/repositories/prisma-refund.repository.js";
+import { CreateRefundUseCase } from "@/application/use-cases/refund/create-refund.use-case.js";
+import { PrismaRefundUnitOfWork } from "../database/prisma/unit-of-work/refund.unit-of-work.js";
 
 const customerRepository = new PrismaCustomerRepository();
 const merchantRepository = new PrismaMerchantRepository();
@@ -41,8 +44,10 @@ const walletRepository = new PrismaWalletRepository();
 const transactionRepository = new PrismaTransactionRepository();
 const paymentLinkRepository = new PrismaPaymentLinkRepository();
 const depositRepository = new PrismaDepositRepository();
+const refundRepository = new PrismaRefundRepository();
 const paymentUnitOfWork = new PrismaPaymentUnitOfWork();
 const depositUnitOfWork = new PrismaDepositUnitOfWork();
+const refundUnitOfWork = new PrismaRefundUnitOfWork();
 
 export const container = {
     registerCustomer: new RegisterCustomerUseCase(customerRepository),
@@ -93,5 +98,7 @@ export const container = {
         depositUnitOfWork
     ),
     getCustomerDeposits: new GetCustomerDepositsUseCase(depositRepository),
-    getMyProfile: new GetMyProfileUseCase(customerRepository)
+    getMyProfile: new GetMyProfileUseCase(customerRepository),
+
+    createRefund: new CreateRefundUseCase(refundRepository, transactionRepository, walletRepository, refundUnitOfWork)
 } as const
