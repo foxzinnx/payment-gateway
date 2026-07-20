@@ -20,7 +20,7 @@ import { PrismaTransactionRepository } from "../database/prisma/repositories/pri
 import { authorizationService } from "../services/authorization.service.impl.js";
 import { CreateTransactionUseCase } from "@/application/use-cases/transaction/create-transaction.use-case.js";
 import { GetTransactionByIdUseCase } from "@/application/use-cases/transaction/get-transaction-by-id.use-case.js";
-import { GetCustomerTransactionsUseCase } from "@/application/use-cases/transaction/get-customer-transactions.use-case.js";
+import { GetCustomerTransactionsUseCase } from "@/application/use-cases/customer/get-customer-transactions.use-case.js";
 import { GetWalletByIdUseCase } from "@/application/use-cases/wallet/get-wallet-by-id.use-case.js";
 import { PayWithLinkUseCase } from "@/application/use-cases/payment-link/pay-with-link.use-case.js";
 import { PrismaPaymentLinkRepository } from "../database/prisma/repositories/prisma-payment-link.repository.js";

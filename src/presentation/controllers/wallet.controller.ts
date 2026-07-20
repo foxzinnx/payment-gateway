@@ -27,40 +27,4 @@ export class WalletController {
 
         reply.status(200).send({ status: 'success', data: output });
     }
-
-    async credit(request: FastifyRequest, reply: FastifyReply): Promise<void>{
-        const { id } = walletIdSchema.parse(request.params);
-        const body = creditWalletSchema.parse(request.body);
-
-        const wallet = await container.getWalletById.execute(id);
-
-        if(wallet.ownerId !== request.user.sub){
-            throw new UnauthorizedError('You can only deposit into your own wallet');
-        }
-
-        const output = await container.creditWallet.execute({
-            walletId: id,
-            amountInCents: body.amountInCents
-        });
-
-        reply.status(200).send({ status: 'success', data: output });
-    }
-
-    async debit(request: FastifyRequest, reply: FastifyReply): Promise<void>{
-        const { id } = walletIdSchema.parse(request.params);
-        const body = debitWalletSchema.parse(request.body);
-
-        const wallet = await container.getWalletById.execute(id);
-
-        if(wallet.ownerId !== request.user.sub){
-            throw new UnauthorizedError('You can only withdraw from your own wallet');
-        }
-
-        const output = await container.debitWallet.execute({
-            walletId: id,
-            amountInCents: body.amountInCents
-        });
-
-        reply.status(200).send({ status: 'success', data: output });
-    }
 }
