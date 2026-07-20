@@ -3,6 +3,8 @@ import { InsufficientFundsError } from "@/domain/errors/insufficient-funds.error
 import { InvalidArgumentError } from "@/domain/errors/invalid-argument.error.js";
 import { NotFoundError } from "@/domain/errors/not-found.error.js";
 import { PaymentLinkAlreadyUsedError, PaymentLinkExpiredError, PaymentLinkInvalidError } from "@/domain/errors/payment-link.error.js";
+import { TransactionAlreadyRefundedError } from "@/domain/errors/transaction-already-refunded.error.js";
+import { TransactionNotRefundableError } from "@/domain/errors/transaction-not-refundable.error.js";
 import { UnauthorizedError } from "@/domain/errors/unauthorized.error.js";
 import type { FastifyError, FastifyReply, FastifyRequest } from "fastify";
 import { ZodError } from "zod";
@@ -117,6 +119,24 @@ export function errorHandler(error: unknown, request: FastifyRequest, reply: Fas
             message: error.message,
         })
         return
+    }
+
+    if(error instanceof TransactionAlreadyRefundedError){
+        reply.status(409).send({
+            status: 'error',
+            code: error.code,
+            message: error.message
+        });
+        return;
+    }
+
+    if(error instanceof TransactionNotRefundableError){
+        reply.status(422).send({
+            status: 'error',
+            code: error.code,
+            message: error.message
+        });
+        return;
     }
 
     if(error instanceof DomainError){
