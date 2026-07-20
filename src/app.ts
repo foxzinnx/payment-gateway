@@ -10,6 +10,7 @@ import scalarApiReference from "@scalar/fastify-api-reference";
 import { paymentLinkRoutes } from "./presentation/routes/payment-link.routes.js";
 import { depositRoutes } from "./presentation/routes/deposit.routes.js";
 import rateLimit from "@fastify/rate-limit";
+import { refundRoutes } from "./presentation/routes/refund.routes.js";
 
 export function buildApp(){
     const app = fastify({ 
@@ -96,6 +97,7 @@ export function buildApp(){
     app.register(transactionRoutes, { prefix: '/api/v1' })
     app.register(paymentLinkRoutes, { prefix: '/api/v1' });
     app.register(depositRoutes, { prefix: '/api/v1' });
+    app.register(refundRoutes, { prefix: '/api/v1' });
 
     app.get('/health', async () => ({ status: 'ok' }));
 
