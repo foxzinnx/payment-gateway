@@ -103,10 +103,11 @@ export const container = {
     createDeposit: new CreateDepositUseCase(
         depositRepository,
         walletRepository,
-        depositUnitOfWork
+        depositUnitOfWork,
+        webhookPublisher
     ),
     getCustomerDeposits: new GetCustomerDepositsUseCase(depositRepository),
     getMyProfile: new GetMyProfileUseCase(customerRepository),
 
-    createRefund: new CreateRefundUseCase(refundRepository, transactionRepository, walletRepository, refundUnitOfWork)
+    createRefund: new CreateRefundUseCase(refundRepository, transactionRepository, walletRepository, refundUnitOfWork, webhookPublisher)
 } as const

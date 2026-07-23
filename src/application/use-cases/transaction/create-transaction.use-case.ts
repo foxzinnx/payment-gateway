@@ -82,11 +82,17 @@ export class CreateTransactionUseCase {
             return transaction.toOutputDTO();
         }
 
-        await this.paymentUnitOfWork.execute({ transaction, customerWallet, merchantWallet })
+        await this.paymentUnitOfWork.execute({ transaction, customerWallet, merchantWallet });
 
-        await this.transactionRepository.save(transaction);
-        await this.walletRepository.update(customerWallet);
-        await this.walletRepository.update(merchantWallet);
+        this.webhookPublisher.publish(
+            transaction.merchantId.value,
+            WEBHOOK_EVENTS.TRANSACTION_APPROVED,
+            transaction.toOutputDTO()
+        ).catch(() => {})
+
+        // await this.transactionRepository.save(transaction);
+        // await this.walletRepository.update(customerWallet);
+        // await this.walletRepository.update(merchantWallet);
 
         return transaction.toOutputDTO();
     }
