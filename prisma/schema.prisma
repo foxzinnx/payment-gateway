@@ -144,6 +144,19 @@ model WebhookDelivery {
     @@map("webhook_deliveries")
 }
 
+model ApiKey {
+    id         String    @id @default(uuid())
+    name       String
+    keyHash    String    @unique @map("key_hash")
+    keyPrefix  String    @map("key_prefix")
+    isActive   Boolean   @default(true) @map("is_active")
+    lastUsedAt DateTime? @map("last_used_at")
+    createdAt  DateTime  @default(now()) @map("created_at")
+    updatedAt  DateTime  @updatedAt @map("updated_at")
+
+    @@map("api_keys")
+}
+
 enum WebhookDeliveryStatus {
     PENDING
     SUCCESS
