@@ -40,6 +40,9 @@ import { PrismaRefundUnitOfWork } from "../database/prisma/unit-of-work/refund.u
 import { WebhookPublisherService } from "../services/webhook.publisher.service.js";
 import { PrismaWebhookRepository } from "../database/prisma/repositories/prisma-webhook.repository.js";
 import { PrismaPayWithLinkUnitOfWork } from "../database/prisma/unit-of-work/pay-with-link.unit-of-work.js";
+import { RegisterWebhookUseCase } from "@/application/use-cases/webhook/register-webhook.use-case.js";
+import { DeactivateWebhookUseCase } from "@/application/use-cases/webhook/deactivate-webhook.use-case.js";
+import { ListWebhooksUseCase } from "@/application/use-cases/webhook/list-webhooks.use-case.js";
 
 const customerRepository = new PrismaCustomerRepository();
 const merchantRepository = new PrismaMerchantRepository();
@@ -109,5 +112,9 @@ export const container = {
     getCustomerDeposits: new GetCustomerDepositsUseCase(depositRepository),
     getMyProfile: new GetMyProfileUseCase(customerRepository),
 
-    createRefund: new CreateRefundUseCase(refundRepository, transactionRepository, walletRepository, refundUnitOfWork, webhookPublisher)
+    createRefund: new CreateRefundUseCase(refundRepository, transactionRepository, walletRepository, refundUnitOfWork, webhookPublisher),
+
+    registerWebhook: new RegisterWebhookUseCase(webhookRepository),
+    deactivateWebhook: new DeactivateWebhookUseCase(webhookRepository),
+    listWebhooks: new ListWebhooksUseCase(webhookRepository)
 } as const
