@@ -9,6 +9,7 @@ export const createTransactionSchema = z.object({
   currency: z.enum(['BRL', 'USD', 'EUR']).default('BRL'),
   description: z.string().max(255).optional(),
   idempotencyKey: z.uuid().optional(),
+  metadata: z.record(z.string(),z.unknown()).optional(),
 })
 
 export const transactionIdSchema = z.object({

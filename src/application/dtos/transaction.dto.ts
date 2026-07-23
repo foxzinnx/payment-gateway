@@ -7,6 +7,7 @@ export interface CreateTransactionInputDTO {
     currency?: Currency | undefined;
     description?: string | undefined;
     idempotencyKey?: string | undefined;
+    metadata?: object | undefined
 }
 
 export interface TransactionOutputDTO {
@@ -19,6 +20,7 @@ export interface TransactionOutputDTO {
   status: TransactionStatus
   description: string | null
   denialReason: string | null
+  metadata: object | null
   createdAt: Date
   updatedAt: Date
 }

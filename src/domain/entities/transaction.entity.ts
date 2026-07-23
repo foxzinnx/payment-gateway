@@ -17,6 +17,7 @@ interface TransactionProps {
     description: string | null;
     idempotencyKey: string | null;
     denialReason: string | null;
+    metadata: object | null;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -34,6 +35,7 @@ export class Transaction extends Entity<TransactionProps>{
             currency?: Currency | undefined
             description?: string | undefined
             idempotencyKey?: string | undefined
+            metadata?: object | undefined
         },
         id?: UniqueEntityId
     ): Transaction {
@@ -53,6 +55,7 @@ export class Transaction extends Entity<TransactionProps>{
                 description: props.description?.trim() ?? null,
                 idempotencyKey: props.idempotencyKey ?? null,
                 denialReason: null,
+                metadata: props.metadata ?? null,
                 createdAt: now,
                 updatedAt: now
             },
@@ -72,6 +75,7 @@ export class Transaction extends Entity<TransactionProps>{
     get description(): string | null { return this._props.description }
     get idempotencyKey(): string | null { return this._props.idempotencyKey }
     get denialReason(): string | null { return this._props.denialReason }
+    get metadata(): object | null { return this._props.metadata }
     get createdAt(): Date { return this._props.createdAt }
     get updatedAt(): Date { return this._props.updatedAt }
 
@@ -118,6 +122,7 @@ export class Transaction extends Entity<TransactionProps>{
             status: this._props.status,
             description: this._props.description,
             denialReason: this._props.denialReason,
+            metadata: this._props.metadata,
             createdAt: this._props.createdAt,
             updatedAt: this._props.updatedAt,
         }

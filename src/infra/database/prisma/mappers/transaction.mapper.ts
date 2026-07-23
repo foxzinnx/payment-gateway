@@ -1,7 +1,7 @@
 import { Transaction, type TransactionStatus } from "@/domain/entities/transaction.entity.js";
 import { Money, type Currency } from "@/domain/value-objects/money.vo.js";
 import { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
-import type { Transaction as PrismaTransaction } from "generated/prisma/client.js";
+import { Prisma, type Transaction as PrismaTransaction } from "generated/prisma/client.js";
 
 export class TransactionMapper {
     static toDomain(raw: PrismaTransaction): Transaction {
@@ -15,6 +15,7 @@ export class TransactionMapper {
                 description: raw.description,
                 idempotencyKey: raw.idempotencyKey,
                 denialReason: raw.denialReason,
+                metadata: raw.metadata as Record<string, unknown> | null,
                 createdAt: raw.createdAt,
                 updatedAt: raw.updatedAt,
             },
@@ -33,6 +34,7 @@ export class TransactionMapper {
             description: transaction.description,
             idempotencyKey: transaction.idempotencyKey,
             denialReason: transaction.denialReason,
+            metadata: transaction.metadata ? transaction.metadata : Prisma.DbNull,
             createdAt: transaction.createdAt,
             updatedAt: transaction.updatedAt
         }

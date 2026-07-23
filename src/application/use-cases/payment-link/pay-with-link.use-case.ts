@@ -5,7 +5,7 @@ import type { CustomerRepository } from "@/domain/repositories/customer.reposito
 import type { MerchantRepository } from "@/domain/repositories/merchant.repository.js";
 import type { PaymentLinkRepository } from "@/domain/repositories/payment-link.repository.js";
 import type { TransactionRepository } from "@/domain/repositories/transaction.repository.js";
-import type { PaymentUnitOfWork } from "@/domain/repositories/unit-of-work.js";
+import type { PaymentUnitOfWork, PayWithLinkUnitOfWork } from "@/domain/repositories/unit-of-work.js";
 import type { WalletRepository } from "@/domain/repositories/wallet.repository.js";
 import type { AuthorizationService } from "@/domain/services/authorization.service.js";
 import { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
@@ -23,7 +23,7 @@ export class PayWithLinkUseCase {
         private readonly walletRepository: WalletRepository,
         private readonly transactionRepository: TransactionRepository,
         private readonly authorizationService: AuthorizationService,
-        private readonly paymentUnitOfWork: PaymentUnitOfWork
+        private readonly payWithLinkUnitOfWork: PayWithLinkUnitOfWork
     ){}
 
     async execute(customerId: string, input: PayWithLinkInputDTO): Promise<TransactionOutputDTO>{
@@ -77,7 +77,7 @@ export class PayWithLinkUseCase {
         transaction.approve();
         paymentLink.markAsUsed()
 
-        await this.paymentUnitOfWork.execute({
+        await this.payWithLinkUnitOfWork.execute({
             transaction,
             customerWallet,
             merchantWallet,

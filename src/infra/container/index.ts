@@ -37,6 +37,9 @@ import { GetMerchantPaymentLinksUseCase } from "@/application/use-cases/payment-
 import { PrismaRefundRepository } from "../database/prisma/repositories/prisma-refund.repository.js";
 import { CreateRefundUseCase } from "@/application/use-cases/refund/create-refund.use-case.js";
 import { PrismaRefundUnitOfWork } from "../database/prisma/unit-of-work/refund.unit-of-work.js";
+import { WebhookPublisherService } from "../services/webhook.publisher.service.js";
+import { PrismaWebhookRepository } from "../database/prisma/repositories/prisma-webhook.repository.js";
+import { PrismaPayWithLinkUnitOfWork } from "../database/prisma/unit-of-work/pay-with-link.unit-of-work.js";
 
 const customerRepository = new PrismaCustomerRepository();
 const merchantRepository = new PrismaMerchantRepository();
@@ -45,9 +48,12 @@ const transactionRepository = new PrismaTransactionRepository();
 const paymentLinkRepository = new PrismaPaymentLinkRepository();
 const depositRepository = new PrismaDepositRepository();
 const refundRepository = new PrismaRefundRepository();
+const webhookRepository = new PrismaWebhookRepository();
 const paymentUnitOfWork = new PrismaPaymentUnitOfWork();
 const depositUnitOfWork = new PrismaDepositUnitOfWork();
 const refundUnitOfWork = new PrismaRefundUnitOfWork();
+const payWithLinkUnitOfWork = new PrismaPayWithLinkUnitOfWork();
+export const webhookPublisher = new WebhookPublisherService(webhookRepository);
 
 export const container = {
     registerCustomer: new RegisterCustomerUseCase(customerRepository),
@@ -74,7 +80,9 @@ export const container = {
         customerRepository,
         merchantRepository,
         walletRepository,
-        authorizationService
+        paymentUnitOfWork,
+        authorizationService,
+        webhookPublisher
     ),
     getTransactionById: new GetTransactionByIdUseCase(transactionRepository),
     getCustomerTransactions: new GetCustomerTransactionsUseCase(transactionRepository),
@@ -89,7 +97,7 @@ export const container = {
         walletRepository,
         transactionRepository,
         authorizationService,
-        paymentUnitOfWork
+        payWithLinkUnitOfWork
     ),
     getMerchantPaymentLinks: new GetMerchantPaymentLinksUseCase(paymentLinkRepository),
     createDeposit: new CreateDepositUseCase(

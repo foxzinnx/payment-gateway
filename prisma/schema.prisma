@@ -65,6 +65,7 @@ model Transaction {
     description    String?
     idempotencyKey String?           @unique @map("idempotency_key")
     denialReason   String?           @map("denial_reason")
+    metadata       Json?
     createdAt      DateTime          @default(now()) @map("created_at")
     updatedAt      DateTime          @updatedAt @map("updated_at")
 

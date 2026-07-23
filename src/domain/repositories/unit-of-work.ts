@@ -13,12 +13,21 @@ export interface DepositUnitOfWork {
 
 export interface PaymentUnitOfWork {
     execute(operations: {
-        transaction: Transaction,
-        customerWallet: Wallet,
-        merchantWallet: Wallet,
-        paymentLink: PaymentLink
-    }): Promise<void>;
+        transaction: Transaction
+        customerWallet: Wallet
+        merchantWallet: Wallet
+    }): Promise<void>
 }
+
+export interface PayWithLinkUnitOfWork {
+    execute(operations: {
+        transaction: Transaction
+        customerWallet: Wallet
+        merchantWallet: Wallet
+        paymentLink: PaymentLink
+    }): Promise<void>
+}
+
 export interface RefundUnitOfWork {
     execute(operations: {
         refund: Refund

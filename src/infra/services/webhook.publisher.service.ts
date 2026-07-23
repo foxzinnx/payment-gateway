@@ -6,7 +6,7 @@ import { webhookDispatcher } from "./webhook-dispatcher.service.js";
 export class WebhookPublisherService {
     constructor(private readonly webhookRepository: WebhookRepository){}
 
-    async publish(merchantId: string, event: WebhookEvent, data: Record<string, unknown>): Promise<void>{
+    async publish(merchantId: string, event: WebhookEvent, data: object): Promise<void>{
         const merchantIdVO = new UniqueEntityId(merchantId);
         const webhooks = await this.webhookRepository.findActiveByMerchantIdAndEvent(merchantIdVO, event);
 

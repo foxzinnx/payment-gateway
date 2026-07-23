@@ -11,5 +11,5 @@ export type WebhookEvent = typeof WEBHOOK_EVENTS[keyof typeof WEBHOOK_EVENTS];
 export interface WebhookPayload {
     event: WebhookEvent;
     timestamp: string;
-    data: Record<string, unknown>;
+    data: object;
 }
