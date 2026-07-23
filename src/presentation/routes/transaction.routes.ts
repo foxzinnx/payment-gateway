@@ -298,31 +298,4 @@ export async function transactionRoutes(app: FastifyInstance): Promise<void> {
         },
         preHandler: authenticate
     }, controller.getById.bind(controller));
-
-    app.get('/transactions/customer/me', {
-        schema: {
-            tags: ['Transaction Routes'],
-            summary: 'List my transactions',
-            description: 'Returns the 20 most recent transactions of the authenticated customer, ordered by creation date descending. Only customers can access this route — merchant tokens return 401.',
-
-            security: [{ bearerAuth: [] }],
-
-            response: {
-                200: {
-                    description: 'Customer transactions retrieved successfully',
-                    type: 'object',
-                    properties: {
-                        status: { type: 'string', enum: ['success'], example: 'success' },
-                        data: {
-                            type: 'array',
-                            items: transactionData
-                        }
-                    },
-                    required: ['status', 'data']
-                },
-                401: unauthorizedResponse
-            }
-        },
-        preHandler: [authenticate, authorizeCustomer]
-    }, controller.listMyAsCustomer.bind(controller));
 }

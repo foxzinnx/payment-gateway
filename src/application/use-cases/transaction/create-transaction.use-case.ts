@@ -90,10 +90,6 @@ export class CreateTransactionUseCase {
             transaction.toOutputDTO()
         ).catch(() => {})
 
-        // await this.transactionRepository.save(transaction);
-        // await this.walletRepository.update(customerWallet);
-        // await this.walletRepository.update(merchantWallet);
-
         return transaction.toOutputDTO();
     }
 }
