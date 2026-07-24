@@ -25,7 +25,7 @@ export class ApiKeyMapper{
             keyHash: apiKey.keyHash,
             keyPrefix: apiKey.keyPrefix,
             isActive: apiKey.isActive,
-            lastUsedAt: apiKey.lastUsedAt ?? undefined,
+            lastUsedAt: apiKey.lastUsedAt ?? null,
             createdAt: apiKey.createdAt,
             updatedAt: apiKey.updatedAt
         }
