@@ -43,6 +43,10 @@ import { PrismaPayWithLinkUnitOfWork } from "../database/prisma/unit-of-work/pay
 import { RegisterWebhookUseCase } from "@/application/use-cases/webhook/register-webhook.use-case.js";
 import { DeactivateWebhookUseCase } from "@/application/use-cases/webhook/deactivate-webhook.use-case.js";
 import { ListWebhooksUseCase } from "@/application/use-cases/webhook/list-webhooks.use-case.js";
+import { CreateApiKeyUseCase } from "@/application/use-cases/api-key/create-api-key.use-case.js";
+import { PrismaApiKeyRepository } from "../database/prisma/repositories/prisma-api-key.repository.js";
+import { RevokeApiKeyUseCase } from "@/application/use-cases/api-key/revoke-api-key.use-case.js";
+import { ListApiKeysUseCase } from "@/application/use-cases/api-key/list-api-keys.use-case.js";
 
 const customerRepository = new PrismaCustomerRepository();
 const merchantRepository = new PrismaMerchantRepository();
@@ -52,6 +56,8 @@ const paymentLinkRepository = new PrismaPaymentLinkRepository();
 const depositRepository = new PrismaDepositRepository();
 const refundRepository = new PrismaRefundRepository();
 const webhookRepository = new PrismaWebhookRepository();
+const apiKeyRepository = new PrismaApiKeyRepository();
+
 const paymentUnitOfWork = new PrismaPaymentUnitOfWork();
 const depositUnitOfWork = new PrismaDepositUnitOfWork();
 const refundUnitOfWork = new PrismaRefundUnitOfWork();
@@ -116,5 +122,9 @@ export const container = {
 
     registerWebhook: new RegisterWebhookUseCase(webhookRepository),
     deactivateWebhook: new DeactivateWebhookUseCase(webhookRepository),
-    listWebhooks: new ListWebhooksUseCase(webhookRepository)
+    listWebhooks: new ListWebhooksUseCase(webhookRepository),
+
+    createApiKey: new CreateApiKeyUseCase(apiKeyRepository),
+    revokeApiKey: new RevokeApiKeyUseCase(apiKeyRepository),
+    listApiKeys: new ListApiKeysUseCase(apiKeyRepository)
 } as const

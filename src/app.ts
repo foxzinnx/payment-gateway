@@ -12,6 +12,7 @@ import { depositRoutes } from "./presentation/routes/deposit.routes.js";
 import rateLimit from "@fastify/rate-limit";
 import { refundRoutes } from "./presentation/routes/refund.routes.js";
 import { webhookRoutes } from "./presentation/routes/webhook.routes.js";
+import { apiKeyRoutes } from "./presentation/routes/api-key.routes.js";
 
 export function buildApp(){
     const app = fastify({ 
@@ -100,6 +101,7 @@ export function buildApp(){
     app.register(depositRoutes, { prefix: '/api/v1' });
     app.register(refundRoutes, { prefix: '/api/v1' });
     app.register(webhookRoutes, { prefix: '/api/v1' });
+    app.register(apiKeyRoutes, { prefix: '/admin' });
 
     app.get('/health', async () => ({ status: 'ok' }));
 
