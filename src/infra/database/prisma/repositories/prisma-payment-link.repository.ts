@@ -47,6 +47,33 @@ export class PrismaPaymentLinkRepository implements PaymentLinkRepository {
         }
     }
 
+    async findAllExpiredActive(): Promise<PaymentLink[]> {
+        const raws = await prisma.paymentLink.findMany({
+            where: {
+                status: 'ACTIVE',
+                expiresAt: {
+                    lt: new Date()
+                }
+            }
+        });
+
+        return raws.map(PaymentLinkMapper.toDomain)
+    }
+
+    async updateMany(paymentLinks: PaymentLink[]): Promise<void>{
+        await prisma.$transaction(
+            paymentLinks.map((link) =>
+                prisma.paymentLink.update({
+                    where: { id: link.id.value },
+                    data: {
+                        status: link.status,
+                        updatedAt: link.updatedAt
+                    }
+                })
+            )
+        )
+    }
+
     async save(paymentLink: PaymentLink): Promise<void> {
         await prisma.paymentLink.create({
             data: PaymentLinkMapper.toPrisma(paymentLink)
