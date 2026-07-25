@@ -13,6 +13,9 @@ import rateLimit from "@fastify/rate-limit";
 import { refundRoutes } from "./presentation/routes/refund.routes.js";
 import { webhookRoutes } from "./presentation/routes/webhook.routes.js";
 import { apiKeyRoutes } from "./presentation/routes/api-key.routes.js";
+import { serviceCustomerRoutes } from "./presentation/routes/service/service-customer.routes.js";
+import { serviceMerchantRoutes } from "./presentation/routes/service/service-merchant.routes.js";
+import { serviceTransactionRoutes } from "./presentation/routes/service/service-transaction.routes.js";
 
 export function buildApp(){
     const app = fastify({ 
@@ -102,6 +105,9 @@ export function buildApp(){
     app.register(refundRoutes, { prefix: '/api/v1' });
     app.register(webhookRoutes, { prefix: '/api/v1' });
     app.register(apiKeyRoutes, { prefix: '/admin' });
+    app.register(serviceCustomerRoutes, { prefix: '/api/v1' });
+    app.register(serviceMerchantRoutes, { prefix: '/api/v1' });
+    app.register(serviceTransactionRoutes, { prefix: '/api/v1' });
 
     app.get('/health', async () => ({ status: 'ok' }));
 
