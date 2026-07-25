@@ -9,4 +9,5 @@ export interface PaymentLinkRepository {
     findAllExpiredActive(): Promise<PaymentLink[]>;
     save(paymentLink: PaymentLink): Promise<void>;
     update(paymentLink: PaymentLink): Promise<void>;
+    updateMany(paymentLinks: PaymentLink[]): Promise<void>;
 }
