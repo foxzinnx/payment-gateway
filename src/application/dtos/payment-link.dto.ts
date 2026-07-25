@@ -30,3 +30,8 @@ export interface PaymentLinkDetailsOutputDTO{
     description: string | null;
     expiresAt: Date;
 }
+
+export interface ExpirePaymentLinksOutputDTO {
+    expired: number;
+    processedAt: Date;
+}
