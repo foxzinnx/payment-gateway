@@ -6,6 +6,7 @@ export interface PaymentLinkRepository {
     findById(id: UniqueEntityId): Promise<PaymentLink | null>;
     findByCode(code: string): Promise<PaymentLink | null>;
     findAllByMerchantId(merchantId: UniqueEntityId, pagination: PaginationInput): Promise<PaginatedOutput<PaymentLink>>;
+    findAllExpiredActive(): Promise<PaymentLink[]>;
     save(paymentLink: PaymentLink): Promise<void>;
     update(paymentLink: PaymentLink): Promise<void>;
 }
