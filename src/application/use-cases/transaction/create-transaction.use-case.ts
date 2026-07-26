@@ -82,6 +82,10 @@ export class CreateTransactionUseCase {
             return transaction.toOutputDTO();
         }
 
+        transaction.approve();
+        customerWallet.debit(transaction.amount);
+        merchantWallet.credit(transaction.amount);
+
         await this.paymentUnitOfWork.execute({ transaction, customerWallet, merchantWallet });
 
         this.webhookPublisher.publish(
