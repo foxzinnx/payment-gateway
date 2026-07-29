@@ -3,6 +3,7 @@ import { Transaction } from '@/domain/entities/transaction.entity.js'
 import { UniqueEntityId } from '@/domain/value-objects/unique-entity-id.vo.js'
 import { InvalidArgumentError } from '@/domain/errors/invalid-argument.error.js'
 import { TransactionAmountMustBePositiveError } from '@/domain/errors/transaction-amount-must-be-positive.error.js'
+import { TransactionNotRefundableError } from '@/domain/errors/transaction-not-refundable.error.js'
 
 describe('Transaction Entity', () => {
   const makeTransaction = (overrides = {}) =>
@@ -35,6 +36,16 @@ describe('Transaction Entity', () => {
       const key = '550e8400-e29b-41d4-a716-446655440000'
       const transaction = makeTransaction({ idempotencyKey: key })
       expect(transaction.idempotencyKey).toBe(key)
+    });
+
+    it('should create a transaction with metadata', () => {
+        const transaction = makeTransaction({
+            metadata: { orderId: 'order-123', source: 'capyfood' },
+        })
+        expect(transaction.metadata).toEqual({
+            orderId: 'order-123',
+            source: 'capyfood',
+        })
     })
 
     it('should throw for non-positive amount', () => {
@@ -108,5 +119,69 @@ describe('Transaction Entity', () => {
         before.getTime()
       )
     })
+  })
+
+  describe('refund', () => {
+      it('should refund an approved transaction', () => {
+          const transaction = makeTransaction()
+          transaction.approve()
+          transaction.refund()
+
+          expect(transaction.status).toBe('REFUNDED')
+          expect(transaction.isRefunded).toBe(true)
+          expect(transaction.isApproved).toBe(false)
+      })
+
+      it('should throw when refunding a pending transaction', () => {
+          const transaction = makeTransaction()
+
+          expect(() => transaction.refund()).toThrowError(TransactionNotRefundableError)
+      })
+
+      it('should throw when refunding a failed transaction', () => {
+          const transaction = makeTransaction()
+          transaction.fail('Insufficient funds')
+
+          expect(() => transaction.refund()).toThrowError(TransactionNotRefundableError)
+      })
+
+      it('should throw when refunding an already refunded transaction', () => {
+          const transaction = makeTransaction()
+          transaction.approve()
+          transaction.refund()
+
+          expect(() => transaction.refund()).toThrowError(TransactionNotRefundableError)
+      })
+
+      it('should update updatedAt on refund', () => {
+          const transaction = makeTransaction()
+          transaction.approve()
+          const before = transaction.updatedAt
+          transaction.refund()
+          expect(transaction.updatedAt.getTime()).toBeGreaterThanOrEqual(
+            before.getTime()
+          )
+      })
+  })
+
+  describe('toOutputDTO', () => {
+      it('should include metadata in output', () => {
+          const transaction = makeTransaction({
+              metadata: { orderId: 'order-123', source: 'capyfood' },
+          })
+
+          const output = transaction.toOutputDTO()
+
+          expect(output.metadata).toEqual({
+              orderId: 'order-123',
+              source: 'capyfood',
+          })
+      })
+
+      it('should return null metadata when not provided', () => {
+          const transaction = makeTransaction()
+          const output = transaction.toOutputDTO()
+          expect(output.metadata).toBeNull()
+      })
   })
 })

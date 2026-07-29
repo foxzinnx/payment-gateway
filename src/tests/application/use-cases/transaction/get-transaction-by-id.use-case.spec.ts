@@ -6,61 +6,93 @@ import { UniqueEntityId } from '@/domain/value-objects/unique-entity-id.vo.js'
 import { NotFoundError } from '@/domain/errors/not-found.error.js'
 
 describe('GetTransactionByIdUseCase', () => {
-  let repository: InMemoryTransactionRepository
-  let sut: GetTransactionByIdUseCase
+    let repository: InMemoryTransactionRepository
+    let sut: GetTransactionByIdUseCase
 
-  beforeEach(() => {
-    repository = new InMemoryTransactionRepository()
-    sut = new GetTransactionByIdUseCase(repository)
-  })
-
-  it('should return a transaction by id', async () => {
-    const transaction = Transaction.create({
-      customerId: new UniqueEntityId(),
-      merchantId: new UniqueEntityId(),
-      amountInCents: 5000,
+    beforeEach(() => {
+        repository = new InMemoryTransactionRepository()
+        sut = new GetTransactionByIdUseCase(repository)
     })
-    await repository.save(transaction)
 
-    const output = await sut.execute(transaction.id.value)
+    it('should return a transaction by id', async () => {
+        const transaction = Transaction.create({
+          customerId: new UniqueEntityId(),
+          merchantId: new UniqueEntityId(),
+          amountInCents: 5000,
+        })
+        await repository.save(transaction)
 
-    expect(output.id).toBe(transaction.id.value)
-    expect(output.amountInCents).toBe(5000)
-    expect(output.status).toBe('PENDING')
-  })
+        const output = await sut.execute(transaction.id.value)
 
-  it('should return approved transaction with correct status', async () => {
-    const transaction = Transaction.create({
-      customerId: new UniqueEntityId(),
-      merchantId: new UniqueEntityId(),
-      amountInCents: 5000,
+        expect(output.id).toBe(transaction.id.value)
+        expect(output.amountInCents).toBe(5000)
+        expect(output.status).toBe('PENDING')
     })
-    transaction.approve()
-    await repository.save(transaction)
 
-    const output = await sut.execute(transaction.id.value)
+    it('should return approved transaction with correct status', async () => {
+        const transaction = Transaction.create({
+          customerId: new UniqueEntityId(),
+          merchantId: new UniqueEntityId(),
+          amountInCents: 5000,
+        })
+        transaction.approve()
+        await repository.save(transaction)
 
-    expect(output.status).toBe('APPROVED')
-  })
+        const output = await sut.execute(transaction.id.value)
 
-  it('should return failed transaction with denial reason', async () => {
-    const transaction = Transaction.create({
-      customerId: new UniqueEntityId(),
-      merchantId: new UniqueEntityId(),
-      amountInCents: 5000,
+        expect(output.status).toBe('APPROVED')
     })
-    transaction.fail('Insufficient funds')
-    await repository.save(transaction)
 
-    const output = await sut.execute(transaction.id.value)
+    it('should return failed transaction with denial reason', async () => {
+        const transaction = Transaction.create({
+          customerId: new UniqueEntityId(),
+          merchantId: new UniqueEntityId(),
+          amountInCents: 5000,
+        })
+        transaction.fail('Insufficient funds')
+        await repository.save(transaction)
 
-    expect(output.status).toBe('FAILED')
-    expect(output.denialReason).toBe('Insufficient funds')
-  })
+        const output = await sut.execute(transaction.id.value)
 
-  it('should throw NotFoundError when transaction does not exist', async () => {
-    await expect(
-      sut.execute('00000000-0000-0000-0000-000000000000')
-    ).rejects.toThrowError(NotFoundError)
-  })
+        expect(output.status).toBe('FAILED')
+        expect(output.denialReason).toBe('Insufficient funds')
+    })
+
+    it('should return refunded transaction with correct status', async () => {
+        const transaction = Transaction.create({
+            customerId: new UniqueEntityId(),
+            merchantId: new UniqueEntityId(),
+            amountInCents: 5000,
+        })
+        transaction.approve()
+        transaction.refund()
+        await repository.save(transaction)
+
+        const output = await sut.execute(transaction.id.value)
+
+        expect(output.status).toBe('REFUNDED')
+    })
+
+    it('should return transaction with metadata', async () => {
+        const transaction = Transaction.create({
+            customerId: new UniqueEntityId(),
+            merchantId: new UniqueEntityId(),
+            amountInCents: 5000,
+            metadata: { orderId: 'order-123', source: 'capyfood' },
+        })
+        await repository.save(transaction)
+
+        const output = await sut.execute(transaction.id.value)
+
+        expect(output.metadata).toEqual({
+          orderId: 'order-123',
+          source: 'capyfood',
+        })
+    })
+
+    it('should throw NotFoundError when transaction does not exist', async () => {
+        await expect(
+          sut.execute('00000000-0000-0000-0000-000000000000')
+        ).rejects.toThrowError(NotFoundError)
+    })
 })
