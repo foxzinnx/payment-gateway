@@ -4,9 +4,9 @@ import { NotFoundError } from "@/domain/errors/not-found.error.js";
 import type { DepositRepository } from "@/domain/repositories/deposit.repository.js";
 import type { DepositUnitOfWork } from "@/domain/repositories/unit-of-work.js";
 import type { WalletRepository } from "@/domain/repositories/wallet.repository.js";
+import type { WebhookPublisherService } from "@/domain/services/webhook-publisher.service.js";
 import { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
 import { WEBHOOK_EVENTS } from "@/domain/webhooks/webhook-event.js";
-import type { WebhookPublisherService } from "@/infra/services/webhook.publisher.service.js";
 
 export class CreateDepositUseCase {
     constructor(
