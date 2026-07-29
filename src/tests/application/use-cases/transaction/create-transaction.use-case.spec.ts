@@ -11,12 +11,17 @@ import { Wallet } from '@/domain/entities/wallet.entity.js'
 import { Money } from '@/domain/value-objects/money.vo.js'
 import { UniqueEntityId } from '@/domain/value-objects/unique-entity-id.vo.js'
 import { NotFoundError } from '@/domain/errors/not-found.error.js'
+import { InMemoryPaymentUnitOfWork } from '@/tests/unit-of-work/in-memory-payment.unit-of-work.js'
+import { InMemoryWebhookPublisher } from '@/tests/services/in-memory-webhook-publisher.js'
+import { WEBHOOK_EVENTS } from '@/domain/webhooks/webhook-event.js'
 
 describe('CreateTransactionUseCase', () => {
   let transactionRepository: InMemoryTransactionRepository
   let customerRepository: InMemoryCustomerRepository
   let merchantRepository: InMemoryMerchantRepository
   let walletRepository: InMemoryWalletRepository
+  let paymentUnitOfWork: InMemoryPaymentUnitOfWork
+  let webhookPublisher: InMemoryWebhookPublisher
   let authorizationService: AuthorizationServiceImpl
   let sut: CreateTransactionUseCase
 
@@ -30,6 +35,8 @@ describe('CreateTransactionUseCase', () => {
     customerRepository = new InMemoryCustomerRepository()
     merchantRepository = new InMemoryMerchantRepository()
     walletRepository = new InMemoryWalletRepository()
+    paymentUnitOfWork = new InMemoryPaymentUnitOfWork(transactionRepository, walletRepository)
+    webhookPublisher = new InMemoryWebhookPublisher()
     authorizationService = new AuthorizationServiceImpl()
 
     sut = new CreateTransactionUseCase(
@@ -37,7 +44,9 @@ describe('CreateTransactionUseCase', () => {
       customerRepository,
       merchantRepository,
       walletRepository,
-      authorizationService
+      paymentUnitOfWork,
+      authorizationService,
+      webhookPublisher
     )
 
     customer = await Customer.create({
@@ -52,6 +61,8 @@ describe('CreateTransactionUseCase', () => {
     customerWallet.credit(Money.create(20000, 'BRL'))
     await walletRepository.save(customerWallet)
 
+    paymentUnitOfWork.wallets.push(customerWallet);
+
     merchant = await Merchant.create({
       name: 'Empresa Exemplo LTDA',
       tradeName: 'Exemplo Store',
@@ -63,76 +74,122 @@ describe('CreateTransactionUseCase', () => {
 
     merchantWallet = Wallet.create(merchant.id, 'MERCHANT', 'BRL')
     await walletRepository.save(merchantWallet)
+
+    paymentUnitOfWork.wallets.push(merchantWallet)
   })
 
   describe('approved transactions', () => {
-    it('should create an approved transaction and move funds', async () => {
-      const output = await sut.execute(customer.id.value, {
-        merchantId: merchant.id.value,
-        amountInCents: 5000,
+      it('should create an approved transaction and move funds', async () => {
+          const output = await sut.execute(customer.id.value, {
+            merchantId: merchant.id.value,
+            amountInCents: 5000,
+          })
+
+          expect(output.status).toBe('APPROVED')
+          expect(output.amountInCents).toBe(5000)
+          expect(output.denialReason).toBeNull()
+          
+          expect(paymentUnitOfWork.transactions).toHaveLength(1);
+
+          const updatedCustomerWallet = paymentUnitOfWork.wallets.find(
+            (w) => w.ownerId.equals(customer.id)
+          );
+
+          const updatedMerchantWallet = paymentUnitOfWork.wallets.find(
+            (w) => w.ownerId.equals(merchant.id)
+          );
+
+          expect(updatedCustomerWallet?.balance.amountInCents).toBe(15000);
+          expect(updatedMerchantWallet?.balance.amountInCents).toBe(5000)
       })
 
-      expect(output.status).toBe('APPROVED')
-      expect(output.amountInCents).toBe(5000)
-      expect(output.denialReason).toBeNull()
-      expect(transactionRepository.items).toHaveLength(1)
+      it('should create transaction with description', async () => {
+          const output = await sut.execute(customer.id.value, {
+            merchantId: merchant.id.value,
+            amountInCents: 5000,
+            description: 'Compra de produto X',
+          })
 
-      const updatedCustomerWallet = await walletRepository.findByOwnerId(customer.id)
-      const updatedMerchantWallet = await walletRepository.findByOwnerId(merchant.id)
-
-      expect(updatedCustomerWallet!.balance.amountInCents).toBe(15000)
-      expect(updatedMerchantWallet!.balance.amountInCents).toBe(5000)
-    })
-
-    it('should create transaction with description', async () => {
-      const output = await sut.execute(customer.id.value, {
-        merchantId: merchant.id.value,
-        amountInCents: 5000,
-        description: 'Compra de produto X',
+          expect(output.description).toBe('Compra de produto X')
       })
 
-      expect(output.description).toBe('Compra de produto X')
-    })
+      it('should return formatted amount', async () => {
+          const output = await sut.execute(customer.id.value, {
+            merchantId: merchant.id.value,
+            amountInCents: 5000,
+          })
 
-    it('should return formatted amount', async () => {
-      const output = await sut.execute(customer.id.value, {
-        merchantId: merchant.id.value,
-        amountInCents: 5000,
+          expect(output.amountFormatted).toBe('50.00')
+      });
+
+      it('should dispatch transaction.approved webhook', async () => {
+          await sut.execute(customer.id.value, {
+            merchantId: merchant.id.value,
+            amountInCents: 5000
+          });
+
+          expect(webhookPublisher.wasPublished(
+              WEBHOOK_EVENTS.TRANSACTION_APPROVED
+          )).toBe(true);
+
+          expect(webhookPublisher.lastCall()?.merchantId).toBe(merchant.id.value)
       })
-
-      expect(output.amountFormatted).toBe('50.00')
-    })
   })
 
   describe('failed transactions', () => {
-    it('should create a failed transaction when merchant is suspended', async () => {
-      merchant.suspend()
-      await merchantRepository.update(merchant)
+      it('should create a failed transaction when merchant is suspended', async () => {
+          merchant.suspend()
+          await merchantRepository.update(merchant)
 
-      const output = await sut.execute(customer.id.value, {
-        merchantId: merchant.id.value,
-        amountInCents: 5000,
+          const output = await sut.execute(customer.id.value, {
+            merchantId: merchant.id.value,
+            amountInCents: 5000,
+          })
+
+          expect(output.status).toBe('FAILED')
+          expect(output.denialReason).toBe('Merchant is not active')
+
+          expect(paymentUnitOfWork.transactions).toHaveLength(0)
+          expect(customerWallet.balance.amountInCents).toBe(20000)
+          expect(merchantWallet.balance.amountInCents).toBe(0)
       })
 
-      expect(output.status).toBe('FAILED')
-      expect(output.denialReason).toBe('Merchant is not active')
+      it('should create a failed transaction when insufficient funds', async () => {
+          const output = await sut.execute(customer.id.value, {
+            merchantId: merchant.id.value,
+            amountInCents: 99999,
+          })
 
-      const customerWalletAfter = await walletRepository.findByOwnerId(customer.id)
-      const merchantWalletAfter = await walletRepository.findByOwnerId(merchant.id)
+          expect(output.status).toBe('FAILED')
+          expect(output.denialReason).toBe('Insufficient funds')
+      });
 
-      expect(customerWalletAfter!.balance.amountInCents).toBe(20000)
-      expect(merchantWalletAfter!.balance.amountInCents).toBe(0)
-    })
+      it('should dispatch transaction.failed webhook', async () => {
+          merchant.suspend()
+          await merchantRepository.update(merchant)
 
-    it('should create a failed transaction when insufficient funds', async () => {
-      const output = await sut.execute(customer.id.value, {
-        merchantId: merchant.id.value,
-        amountInCents: 99999,
+          await sut.execute(customer.id.value, {
+            merchantId: merchant.id.value,
+            amountInCents: 5000,
+          })
+
+          expect(webhookPublisher.wasPublished(
+            WEBHOOK_EVENTS.TRANSACTION_FAILED
+          )).toBe(true)
       })
 
-      expect(output.status).toBe('FAILED')
-      expect(output.denialReason).toBe('Insufficient funds')
-    })
+      it('should save failed transaction in repository', async () => {
+          merchant.suspend()
+          await merchantRepository.update(merchant)
+
+          await sut.execute(customer.id.value, {
+            merchantId: merchant.id.value,
+            amountInCents: 5000,
+          })
+
+          expect(transactionRepository.items).toHaveLength(1)
+          expect(transactionRepository.items[0]!.status).toBe('FAILED')
+      })
   })
 
   describe('idempotency', () => {
@@ -153,65 +210,85 @@ describe('CreateTransactionUseCase', () => {
 
       expect(first.id).toBe(second.id)
 
-      expect(transactionRepository.items).toHaveLength(1)
+      expect(paymentUnitOfWork.transactions).toHaveLength(1);
 
-      const walletAfter = await walletRepository.findByOwnerId(customer.id)
-      expect(walletAfter!.balance.amountInCents).toBe(15000)
+      const customerWalletAfter = paymentUnitOfWork.wallets.find(
+        (w) => w.ownerId.equals(customer.id)
+      )
+      expect(customerWalletAfter?.balance.amountInCents).toBe(15000)
     })
+  });
+
+  describe('metadata', () => {
+      it('should create transaction with metadata', async () => {
+        const output = await sut.execute(customer.id.value, {
+          merchantId: merchant.id.value,
+          amountInCents: 5000,
+          metadata: {
+            orderId: 'order-123',
+            source: 'capyfood',
+          },
+        })
+
+        expect(output.metadata).toEqual({
+          orderId: 'order-123',
+          source: 'capyfood',
+        })
+      })
   })
 
   describe('not found errors', () => {
-    it('should throw NotFoundError when customer does not exist', async () => {
-      await expect(
-        sut.execute('00000000-0000-0000-0000-000000000000', {
-          merchantId: merchant.id.value,
-          amountInCents: 5000,
-        })
-      ).rejects.toThrowError(NotFoundError)
-    })
-
-    it('should throw NotFoundError when merchant does not exist', async () => {
-      await expect(
-        sut.execute(customer.id.value, {
-          merchantId: '00000000-0000-0000-0000-000000000000',
-          amountInCents: 5000,
-        })
-      ).rejects.toThrowError(NotFoundError)
-    })
-
-    it('should throw NotFoundError when customer wallet does not exist', async () => {
-      const customerWithoutWallet = await Customer.create({
-        name: 'No Wallet',
-        email: 'nowallet@example.com',
-        cpf: '769.193.330-40',
-        password: 'senha123',
+      it('should throw NotFoundError when customer does not exist', async () => {
+          await expect(
+            sut.execute('00000000-0000-0000-0000-000000000000', {
+              merchantId: merchant.id.value,
+              amountInCents: 5000,
+            })
+          ).rejects.toThrowError(NotFoundError)
       })
-      await customerRepository.save(customerWithoutWallet)
 
-      await expect(
-        sut.execute(customerWithoutWallet.id.value, {
-          merchantId: merchant.id.value,
-          amountInCents: 5000,
-        })
-      ).rejects.toThrowError(NotFoundError)
-    })
-
-    it('should throw NotFoundError when merchant wallet does not exist', async () => {
-      const merchantWithoutWallet = await Merchant.create({
-        name: 'Sem Wallet LTDA',
-        tradeName: 'Sem Wallet',
-        email: 'semwallet@exemplo.com',
-        cnpj: '33.784.738/0001-46',
-        password: 'senha123',
+      it('should throw NotFoundError when merchant does not exist', async () => {
+          await expect(
+            sut.execute(customer.id.value, {
+              merchantId: '00000000-0000-0000-0000-000000000000',
+              amountInCents: 5000,
+            })
+          ).rejects.toThrowError(NotFoundError)
       })
-      await merchantRepository.save(merchantWithoutWallet)
 
-      await expect(
-        sut.execute(customer.id.value, {
-          merchantId: merchantWithoutWallet.id.value,
-          amountInCents: 5000,
-        })
-      ).rejects.toThrowError(NotFoundError)
-    })
+      it('should throw NotFoundError when customer wallet does not exist', async () => {
+          const customerWithoutWallet = await Customer.create({
+            name: 'No Wallet',
+            email: 'nowallet@example.com',
+            cpf: '769.193.330-40',
+            password: 'senha123',
+          })
+          await customerRepository.save(customerWithoutWallet)
+
+          await expect(
+            sut.execute(customerWithoutWallet.id.value, {
+              merchantId: merchant.id.value,
+              amountInCents: 5000,
+            })
+          ).rejects.toThrowError(NotFoundError)
+      })
+
+      it('should throw NotFoundError when merchant wallet does not exist', async () => {
+          const merchantWithoutWallet = await Merchant.create({
+            name: 'Sem Wallet LTDA',
+            tradeName: 'Sem Wallet',
+            email: 'semwallet@exemplo.com',
+            cnpj: '33.784.738/0001-46',
+            password: 'senha123',
+          })
+          await merchantRepository.save(merchantWithoutWallet)
+
+          await expect(
+            sut.execute(customer.id.value, {
+              merchantId: merchantWithoutWallet.id.value,
+              amountInCents: 5000,
+            })
+          ).rejects.toThrowError(NotFoundError)
+      })
   })
 })
