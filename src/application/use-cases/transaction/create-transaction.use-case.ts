@@ -7,9 +7,9 @@ import type { TransactionRepository } from "@/domain/repositories/transaction.re
 import type { PaymentUnitOfWork } from "@/domain/repositories/unit-of-work.js";
 import type { WalletRepository } from "@/domain/repositories/wallet.repository.js";
 import type { AuthorizationService } from "@/domain/services/authorization.service.js";
-import type { WebhookPublisherService } from "@/domain/services/webhook-publisher.service.js";
 import { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
 import { WEBHOOK_EVENTS } from "@/domain/webhooks/webhook-event.js";
+import type { WebhookPublisherService } from "@/infra/services/webhook.publisher.service.js";
 
 export class CreateTransactionUseCase {
     constructor(

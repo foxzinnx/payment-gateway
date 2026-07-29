@@ -8,9 +8,10 @@ import type { RefundRepository } from "@/domain/repositories/refund.repository.j
 import type { TransactionRepository } from "@/domain/repositories/transaction.repository.js";
 import type { RefundUnitOfWork } from "@/domain/repositories/unit-of-work.js";
 import type { WalletRepository } from "@/domain/repositories/wallet.repository.js";
-import type { WebhookPublisherService } from "@/domain/services/webhook-publisher.service.js";
+import type { WebhookRepository } from "@/domain/repositories/webhook.repository.js";
 import { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
 import { WEBHOOK_EVENTS } from "@/domain/webhooks/webhook-event.js";
+import type { WebhookPublisherService } from "@/infra/services/webhook.publisher.service.js";
 
 export class CreateRefundUseCase {
     constructor(
