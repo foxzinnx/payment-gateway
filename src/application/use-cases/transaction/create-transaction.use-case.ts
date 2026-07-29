@@ -60,7 +60,8 @@ export class CreateTransactionUseCase {
             amountInCents: input.amountInCents,
             currency: input.currency,
             description: input.description,
-            idempotencyKey: input.idempotencyKey
+            idempotencyKey: input.idempotencyKey,
+            metadata: input.metadata
         });
 
         const authResult = this.authorizationService.authorize(
