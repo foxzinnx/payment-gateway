@@ -37,7 +37,7 @@ import { GetMerchantPaymentLinksUseCase } from "@/application/use-cases/payment-
 import { PrismaRefundRepository } from "../database/prisma/repositories/prisma-refund.repository.js";
 import { CreateRefundUseCase } from "@/application/use-cases/refund/create-refund.use-case.js";
 import { PrismaRefundUnitOfWork } from "../database/prisma/unit-of-work/refund.unit-of-work.js";
-import { WebhookPublisherService } from "../services/webhook.publisher.service.js";
+import { WebhookPublisherServiceImpl } from "../services/webhook-publisher.service.impl.js";
 import { PrismaWebhookRepository } from "../database/prisma/repositories/prisma-webhook.repository.js";
 import { PrismaPayWithLinkUnitOfWork } from "../database/prisma/unit-of-work/pay-with-link.unit-of-work.js";
 import { RegisterWebhookUseCase } from "@/application/use-cases/webhook/register-webhook.use-case.js";
@@ -62,7 +62,7 @@ const paymentUnitOfWork = new PrismaPaymentUnitOfWork();
 const depositUnitOfWork = new PrismaDepositUnitOfWork();
 const refundUnitOfWork = new PrismaRefundUnitOfWork();
 const payWithLinkUnitOfWork = new PrismaPayWithLinkUnitOfWork();
-export const webhookPublisher = new WebhookPublisherService(webhookRepository);
+export const webhookPublisher = new WebhookPublisherServiceImpl(webhookRepository);
 
 export const container = {
     registerCustomer: new RegisterCustomerUseCase(customerRepository),
