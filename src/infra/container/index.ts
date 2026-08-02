@@ -106,7 +106,8 @@ export const container = {
         walletRepository,
         transactionRepository,
         authorizationService,
-        payWithLinkUnitOfWork
+        payWithLinkUnitOfWork,
+        webhookPublisher
     ),
     getMerchantPaymentLinks: new GetMerchantPaymentLinksUseCase(paymentLinkRepository),
     createDeposit: new CreateDepositUseCase(
