@@ -23,7 +23,7 @@ export class InMemoryApiKeyRepository implements ApiKeyRepository{
 
     async update(apiKey: ApiKey): Promise<void> {
         const index = this.items.findIndex((k) => k.id.equals(apiKey.id));
-        if(index > 0) this.items[index] = apiKey;
+        if(index >= 0) this.items[index] = apiKey;
     }
 
 }

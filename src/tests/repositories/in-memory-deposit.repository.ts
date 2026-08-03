@@ -25,7 +25,7 @@ export class InMemoryDepositRepository implements DepositRepository {
 
     async update(deposit: Deposit): Promise<void> {
         const index = this.items.findIndex((d) => d.id.equals(deposit.id));
-        if(index > 0) this.items[index] = deposit;
+        if(index >= 0) this.items[index] = deposit;
     }
 
 }

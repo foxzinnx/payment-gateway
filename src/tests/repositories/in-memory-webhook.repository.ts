@@ -29,6 +29,6 @@ export class InMemoryWebhookRepository implements WebhookRepository {
 
     async update(webhook: Webhook): Promise<void> {
         const index = this.items.findIndex((w) => w.id.equals(webhook.id));
-        if(index > 0) this.items[index] = webhook;
+        if(index >= 0) this.items[index] = webhook;
     }
 }
