@@ -8,7 +8,9 @@ import type { TransactionRepository } from "@/domain/repositories/transaction.re
 import type { PaymentUnitOfWork, PayWithLinkUnitOfWork } from "@/domain/repositories/unit-of-work.js";
 import type { WalletRepository } from "@/domain/repositories/wallet.repository.js";
 import type { AuthorizationService } from "@/domain/services/authorization.service.js";
+import type { WebhookPublisherService } from "@/domain/services/webhook-publisher.service.js";
 import { UniqueEntityId } from "@/domain/value-objects/unique-entity-id.vo.js";
+import { WEBHOOK_EVENTS } from "@/domain/webhooks/webhook-event.js";
 
 export interface PayWithLinkInputDTO {
     code: string;
@@ -23,7 +25,8 @@ export class PayWithLinkUseCase {
         private readonly walletRepository: WalletRepository,
         private readonly transactionRepository: TransactionRepository,
         private readonly authorizationService: AuthorizationService,
-        private readonly payWithLinkUnitOfWork: PayWithLinkUnitOfWork
+        private readonly payWithLinkUnitOfWork: PayWithLinkUnitOfWork,
+        private readonly webhookPublisher: WebhookPublisherService
     ){}
 
     async execute(customerId: string, input: PayWithLinkInputDTO): Promise<TransactionOutputDTO>{
@@ -69,6 +72,13 @@ export class PayWithLinkUseCase {
         if(!authResult.authorized){
             transaction.fail(authResult.reason);
             await this.transactionRepository.save(transaction);
+
+            this.webhookPublisher.publish(
+                merchant.id.value,
+                WEBHOOK_EVENTS.TRANSACTION_FAILED,
+                transaction.toOutputDTO()
+            ).catch(() => {})
+
             return transaction.toOutputDTO();
         }
 
@@ -82,7 +92,13 @@ export class PayWithLinkUseCase {
             customerWallet,
             merchantWallet,
             paymentLink
-        })
+        });
+
+        this.webhookPublisher.publish(
+            merchant.id.value,
+            WEBHOOK_EVENTS.TRANSACTION_APPROVED,
+            transaction.toOutputDTO()
+        ).catch(() => {})
 
         return transaction.toOutputDTO();
     }

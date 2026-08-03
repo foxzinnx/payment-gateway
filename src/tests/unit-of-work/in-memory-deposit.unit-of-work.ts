@@ -10,7 +10,7 @@ export class InMemoryDepositUnitOfWork implements DepositUnitOfWork {
         this.deposits.push(operations.deposit);
 
         const index = this.wallets.findIndex((w) => w.id.equals(operations.wallet.id));
-        if(index > 0) {
+        if(index >= 0) {
             this.wallets[index] = operations.wallet;
         }
     }

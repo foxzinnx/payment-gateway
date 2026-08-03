@@ -34,13 +34,13 @@ export class InMemoryPaymentLinkRepository implements PaymentLinkRepository {
     
     async update(paymentLink: PaymentLink): Promise<void> {
         const index = this.items.findIndex((p) => p.id.equals(paymentLink.id));
-        if(index > 0) this.items[index] = paymentLink;
+        if(index >= 0) this.items[index] = paymentLink;
     }
 
     async updateMany(paymentLinks: PaymentLink[]): Promise<void> {
         for(const paymentLink of paymentLinks){
             const index = this.items.findIndex((p) => p.id.equals(paymentLink.id));
-            if(index > 0) this.items[index] = paymentLink;
+            if(index >= 0) this.items[index] = paymentLink;
         }   
     }
 }

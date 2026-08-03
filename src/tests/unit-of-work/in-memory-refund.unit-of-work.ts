@@ -14,7 +14,7 @@ export class InMemoryRefundUnitOfWork implements RefundUnitOfWork {
 
         for(const wallet of [operations.customerWallet, operations.merchantWallet]){
             const index = this.wallets.findIndex((w) => w.id.equals(wallet.id));
-            if(index > 0){
+            if(index >= 0){
                 this.wallets[index] = wallet;
             }
         }
