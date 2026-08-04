@@ -1,4 +1,4 @@
-import type { WebhookOutputDTO } from "@/application/dtos/webhook.dto.js";
+import type { WebhookOutputDTO, WebhookRegistrationOutputDTO } from "@/application/dtos/webhook.dto.js";
 import { InvalidArgumentError } from "../errors/invalid-argument.error.js";
 import type { UniqueEntityId } from "../value-objects/unique-entity-id.vo.js";
 import type { WebhookEvent } from "../webhooks/webhook-event.js";
@@ -74,6 +74,13 @@ export class Webhook extends Entity<WebhookProps>{
             isActive: this._props.isActive,
             createdAt: this._props.createdAt,
             updatedAt: this._props.updatedAt
+        }
+    }
+
+    toRegistrationDTO(rawSecret: string): WebhookRegistrationOutputDTO {
+        return {
+            ...this.toOutputDTO(),
+            secret: rawSecret
         }
     }
 
