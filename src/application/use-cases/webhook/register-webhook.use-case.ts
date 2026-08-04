@@ -8,18 +8,18 @@ export class RegisterWebhookUseCase {
     constructor(private readonly webhookRepository: WebhookRepository){}
 
     async execute(merchantId: string, input: RegisterWebhookInputDTO): Promise<WebhookOutputDTO>{
-        const secret = crypto.randomBytes(32).toString('hex');
+        const rawSecret = crypto.randomBytes(32).toString('hex');
         const merchantIdVO = new UniqueEntityId(merchantId);
 
         const webhook = Webhook.create({
             merchantId: merchantIdVO,
             url: input.url,
             events: input.events,
-            secret
+            secret: rawSecret
         });
 
         await this.webhookRepository.save(webhook);
 
-        return webhook.toOutputDTO()
+        return webhook.toRegistrationDTO(rawSecret);
     }
 }
