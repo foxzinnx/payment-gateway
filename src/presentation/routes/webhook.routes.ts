@@ -29,6 +29,11 @@ const webhookData = {
             description: 'Inactive webhooks do not receive events.',
             example: true
         },
+        secret: {
+            type: 'string',
+            description: 'HMAC secret to verify webhook signatures. Shown only once — store it as PAYFLOW_WEBHOOK_SECRET.',
+            example: 'a1b2c3d4e5f6...'
+        },
         createdAt: { type: 'string', format: 'date-time', example: '2026-04-02T17:46:36.457Z' },
         updatedAt: { type: 'string', format: 'date-time', example: '2026-04-02T17:46:36.457Z' }
     },
