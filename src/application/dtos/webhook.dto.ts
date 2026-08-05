@@ -14,3 +14,7 @@ export interface WebhookOutputDTO {
     createdAt: Date;
     updatedAt: Date;
 }
+
+export interface WebhookRegistrationOutputDTO extends WebhookOutputDTO {
+    secret: string;
+}

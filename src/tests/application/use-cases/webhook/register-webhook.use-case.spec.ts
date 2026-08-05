@@ -48,15 +48,6 @@ describe('RegisterWebhookUseCase', () => {
             expect(repository.items[0]?.secret).not.toBe(repository.items[1]?.secret);
         });
 
-        it('should not expose secret in output', async () => {
-            const output = await sut.execute(merchantId, {
-                url: 'https://meu-sistema.com/webhooks/payflow',
-                events: [WEBHOOK_EVENTS.TRANSACTION_APPROVED],
-            });
-
-            expect(output).not.toHaveProperty('secret');
-        });
-
         it('should register webhook with all available events', async () => {
             const output = await sut.execute(merchantId, {
                 url: 'https://capyfood.com/webhooks/payflow',
