@@ -16,6 +16,7 @@ import { apiKeyRoutes } from "./presentation/routes/api-key.routes.js";
 import { serviceCustomerRoutes } from "./presentation/routes/service/service-customer.routes.js";
 import { serviceMerchantRoutes } from "./presentation/routes/service/service-merchant.routes.js";
 import { serviceTransactionRoutes } from "./presentation/routes/service/service-transaction.routes.js";
+import { serviceDepositRoutes } from "./presentation/routes/service/service-deposit.routes.js";
 
 export function buildApp(){
     const app = fastify({ 
@@ -108,6 +109,7 @@ export function buildApp(){
     app.register(serviceCustomerRoutes, { prefix: '/api/v1' });
     app.register(serviceMerchantRoutes, { prefix: '/api/v1' });
     app.register(serviceTransactionRoutes, { prefix: '/api/v1' });
+    app.register(serviceDepositRoutes, { prefix: '/api/v1' })
 
     app.get('/health', async () => ({ status: 'ok' }));
 
